@@ -61,7 +61,17 @@ ui <- fluidPage(theme = shinytheme("united"),
                              DT::dataTableOutput("ResDf"),
                            )
                   ),
-                  tabPanel("Regression", "Estimate genome size based on known controls (in construction)."),
+                  tabPanel("Regression",
+                           sidebarPanel(
+                             "Some options"
+                           ),
+                           mainPanel(
+                             #"Some tables and plots"
+                             DT::dataTableOutput("ResDf2"),
+                             #           DT::dataTableOutput("ResDf")
+                           ),
+                  ),
+                           #"Estimate genome size based on known controls (in construction)."),
                   tabPanel("Help", "In construction...")
                 )
 )
@@ -257,6 +267,9 @@ server <- function(input, output, session) {
                           G2 = InitDf()$G2s)
     
     output$ResDf <- DT::renderDataTable(isolate(Df$data),
+                                        editable = FALSE)
+    
+    output$ResDf2 <- DT::renderDataTable(isolate(Df$data),
                                         editable = FALSE)
   })
 
