@@ -20,7 +20,7 @@ library(ggrepel)
 
 # Attempt to addd multiple boxes
 
-QRSList <- c("Box1","Box2","Box3","Box4","Box5")
+#QRSList <- c("Box1","Box2","Box3","Box4","Box5")
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
@@ -200,17 +200,22 @@ server <- function(input, output, session) {
   })
   
   # Attemp to add multiple boxes
-  v <- list()
-  for (i in 1:length(QRSList)){
-    v[[i]] <- #box(#width = 3,
-                  #title = h4(QRSList[i]),
-                  selectInput(inputId = paste0("slider", i),
-                              label = QRSList[i],
-                              choices = list("Not good", "average" , "good"))
-    #)
+  #QRSList <- c("Box1","Box2","Box3","Box4","Box5")
+  observeEvent(input$InCtrl, {
+    QRSList <- paste0("Box", 1:input$InCtrl)
+    v <- list()
+    for (i in 1:length(QRSList)){
+      v[[i]] <- #box(#width = 3,
+        #title = h4(QRSList[i]),
+        selectInput(inputId = paste0("slider", i),
+                    label = QRSList[i],
+                    choices = list("Not good", "average" , "good"))
+      #)
+    }
+    
+    output$myboxes <- renderUI(v)
   }
-  
-  output$myboxes <- renderUI(v)
+  )
   
 
   # Define specific functions
