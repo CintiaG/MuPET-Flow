@@ -96,7 +96,7 @@ server <- function(input, output, session) {
   # Panel 1
   # Sample
   output$FileDropdown <- renderUI({
-    selectInput(inputId = "Sample",
+    selectInput(inputId = "InSample",
                 label = "Select a sample",
                 choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
   })
@@ -138,7 +138,7 @@ server <- function(input, output, session) {
     req(InitDf())
     # Displays file names
     output$FileDropdown <- renderUI({
-      selectInput(inputId = "Sample",
+      selectInput(inputId = "InSample",
                   label = "Select a sample",
                   choices = names(InitDf()$Files))
     })
@@ -152,9 +152,9 @@ server <- function(input, output, session) {
   })
   
   # Display the last used parameters
-  observeEvent(input$Sample, {
+  observeEvent(input$InSample, {
     req(InitDf())
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     output$ChanDropdown <- renderUI({
       selectInput(inputId = "InChan",
                   label = "Select a channel",
@@ -163,9 +163,9 @@ server <- function(input, output, session) {
     })
   })
   
-  observeEvent(input$Sample, {
+  observeEvent(input$InSample, {
     req(InitDf())
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     output$SmoothSel <- renderUI({
       numericInput(inputId = "InSmooth",
                    label = "Adjust smoothing",
@@ -176,9 +176,9 @@ server <- function(input, output, session) {
     })
   })
   
-  observeEvent(input$Sample, {
+  observeEvent(input$InSample, {
     req(InitDf())
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     output$WindowSel <- renderUI({
       numericInput(inputId = "InWindow",
                    label = "Adjust window",
@@ -316,10 +316,10 @@ server <- function(input, output, session) {
   })
 
   # Create plot line
-  PlotLine <- eventReactive(c(input$Sample, input$InSmooth, input$InWindow, input$InChan), {
+  PlotLine <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan), {
     req(InitDf())
     # Get sample name
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Get file information
     File <- InitDf()$Files[[SampNum]]
     # Get channels information
@@ -329,10 +329,10 @@ server <- function(input, output, session) {
   })
   
   # Create plot points
-  PlotPoints <- eventReactive(c(input$Sample, input$InSmooth, input$InWindow, input$InChan, input$MaxPeaks), {
+  PlotPoints <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan, input$MaxPeaks), {
     req(InitDf())
     # Get sample name
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Get width
     Width <- Df$data[SampNum, 4]
     # Return points
@@ -343,12 +343,12 @@ server <- function(input, output, session) {
   output$HisPlot <- renderPlot({
     req(input$InFiles)
     req(InitDf())
-    req(input$Sample)
+    req(input$InSample)
     req(PlotLine())
     req(input$MaxPeaks)
     req(input$InBox)
     
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Get name for plotting and table
     #Name <- names(InitDf()$Files)
     Name <- names(InitDf()$Files)[SampNum]
@@ -371,7 +371,7 @@ server <- function(input, output, session) {
 
   # Proxys for data replacement
   observeEvent(input$InChan, {
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Update smooth
     Df$data[SampNum, 2] <- input$InChan
     # Replace data
@@ -380,7 +380,7 @@ server <- function(input, output, session) {
   })
   # Smoothing
   observeEvent(input$InSmooth, {
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Update smooth
     Df$data[SampNum, 3] <- input$InSmooth
     # Replace data
@@ -389,7 +389,7 @@ server <- function(input, output, session) {
   })
   # Window
   observeEvent(input$InWindow, {
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Update window
     Df$data[SampNum, 4] <- input$InWindow
     # Replace data
@@ -398,7 +398,7 @@ server <- function(input, output, session) {
   })
   # Peaks
   observeEvent(input$InBox, {
-    SampNum <- grep(input$Sample, names(InitDf()$Files))
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Update G1 and G2 peaks
     Df$data[SampNum, 5] <- input$InBox[1]
     Df$data[SampNum, 6] <- input$InBox[2]
