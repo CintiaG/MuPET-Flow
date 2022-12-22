@@ -18,6 +18,10 @@ library(ggrepel)
 # las modification of name sape
 # orde peraks before saving?
 
+# Attempt to addd multiple boxes
+
+QRSList <- c("Box1","Box2","Box3","Box4","Box5")
+
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
                 navbarPage(
@@ -66,6 +70,8 @@ ui <- fluidPage(theme = shinytheme("united"),
                   tabPanel("Regression",
                            sidebarPanel(
                              uiOutput("CtrlSel"),
+                             #"Boxes", 
+                             uiOutput("myboxes")
                            ),
                            mainPanel(
                              #"Some tables and plots"
@@ -192,6 +198,19 @@ server <- function(input, output, session) {
                  min = 1,
                  step = 1)
   })
+  
+  # Attemp to add multiple boxes
+  v <- list()
+  for (i in 1:length(QRSList)){
+    v[[i]] <- #box(#width = 3,
+                  #title = h4(QRSList[i]),
+                  selectInput(inputId = paste0("slider", i),
+                              label = QRSList[i],
+                              choices = list("Not good", "average" , "good"))
+    #)
+  }
+  
+  output$myboxes <- renderUI(v)
   
 
   # Define specific functions
