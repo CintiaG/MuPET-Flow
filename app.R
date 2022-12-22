@@ -11,6 +11,8 @@ library(flowCore)
 library(zoo)
 library(ggplot2)
 library(DT)
+library(tidyverse)
+library(ggrepel)
 
 # Pending
 # las modification of name sape
@@ -265,11 +267,20 @@ server <- function(input, output, session) {
                           Window = InitDf()$Windows,
                           G1 = InitDf()$G1s,
                           G2 = InitDf()$G2s)
+    # Generate new data frame for regression calculation
+    Df2 <- Df$data[,c(1,5,6)]
+    # Combine G1 and G2 fluorescent intensity
+    Df2 <- gather(data = Df2,
+                 key = "Phase",
+                 value = "Intensity",
+                 -Sample)
+    # Order alphabetically
+    Df2 <- Df2[order(Df2$Sample),]
     
     output$ResDf <- DT::renderDataTable(isolate(Df$data),
                                         editable = FALSE)
     
-    output$ResDf2 <- DT::renderDataTable(isolate(Df$data),
+    output$ResDf2 <- DT::renderDataTable(isolate(Df2),
                                         editable = FALSE)
   })
 
