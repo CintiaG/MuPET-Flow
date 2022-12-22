@@ -65,7 +65,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                   ),
                   tabPanel("Regression",
                            sidebarPanel(
-                             "Some options"
+                             uiOutput("CtrlSel"),
                            ),
                            mainPanel(
                              #"Some tables and plots"
@@ -87,6 +87,7 @@ server <- function(input, output, session) {
     stopApp()
   })
   # Inputs operations calculated in server
+  # Panel 1
   # Sample
   output$FileDropdown <- renderUI({
     selectInput(inputId = "Sample",
@@ -181,6 +182,17 @@ server <- function(input, output, session) {
                    step = 1)
     })
   })
+  
+  # Panel 2
+  # Number of controls
+  output$CtrlSel <- renderUI({
+    numericInput(inputId = "InCtrl",
+                 label = "Number of controls",
+                 value = 5,
+                 min = 1,
+                 step = 1)
+  })
+  
 
   # Define specific functions
   # Lines
