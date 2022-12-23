@@ -18,10 +18,6 @@ library(ggrepel)
 # las modification of name sape
 # orde peraks before saving?
 
-# Attempt to addd multiple boxes
-
-#QRSList <- c("Box1","Box2","Box3","Box4","Box5")
-
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
                 navbarPage(
@@ -199,23 +195,28 @@ server <- function(input, output, session) {
                  step = 1)
   })
   
-  # Attemp to add multiple boxes
-  #QRSList <- c("Box1","Box2","Box3","Box4","Box5")
-  observeEvent(input$InCtrl, {
-    QRSList <- paste0("Box", 1:input$InCtrl)
+  # Add multiple boxes
+  #observeEvent(input$InSample, {
+  observeEvent(input$InSample, {
+    req(InitDf())
+    BoxesList <- paste("Control", 1:input$InCtrl)
     v <- list()
-    for (i in 1:length(QRSList)){
+    for (i in 1:length(BoxesList)){
       v[[i]] <- #box(#width = 3,
-        #title = h4(QRSList[i]),
+        #title = h4(BoxesList[i]),
         selectInput(inputId = paste0("slider", i),
-                    label = QRSList[i],
-                    choices = list("Not good", "average" , "good"))
+                    label = BoxesList[i],
+                    #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
+                    choices = names(InitDf()$Files))
+                    ##choices = names(InitDf()$Files))
+                    #choices = list("Not good", "average" , "good"))
       #)
     }
     
     output$myboxes <- renderUI(v)
-  }
-  )
+  })
+  
+  # Update
   
 
   # Define specific functions
