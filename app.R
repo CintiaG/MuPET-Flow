@@ -197,7 +197,7 @@ server <- function(input, output, session) {
   
   # Add multiple boxes
   #observeEvent(input$InSample, {
-  observeEvent(input$InSample, {
+  observeEvent(input$InCtrl, {
     req(InitDf())
     BoxesList <- paste("Control", 1:input$InCtrl)
     v <- list()
