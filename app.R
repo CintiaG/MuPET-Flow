@@ -67,7 +67,13 @@ ui <- fluidPage(theme = shinytheme("united"),
                            sidebarPanel(
                              uiOutput("CtrlSel"),
                              #"Boxes", 
-                             uiOutput("myboxes")
+                             div(style="display: inline-block;vertical-align:top; width: 150px;",
+                                 uiOutput("myboxes")
+                             ),
+                             div(style="display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
+                             div(style="display: inline-block;vertical-align:top; width: 150px;",
+                                 uiOutput("myboxes2")
+                             ),
                            ),
                            mainPanel(
                              #"Some tables and plots"
@@ -231,6 +237,36 @@ server <- function(input, output, session) {
       v
     })
   })
+  
+  # For controls ploidy
+  observeEvent(input$InFiles, {
+    req(InitDf())
+    
+    #output$myboxes <- renderUI(v)
+    output$myboxes2 <- renderUI({
+      BoxesList <- paste("Ploidy", 1:input$InCtrl)
+      v <- list()
+      for (i in 1:length(BoxesList)){
+        v[[i]] <- #box(#width = 3,
+          #title = h4(BoxesList[i]),
+          numericInput(inputId = paste0("CtrlPlo", i),
+                       label = BoxesList[i],
+                       value = 3,
+                       min = 1,
+                       #max = 5,
+                       step = 1)
+          #selectInput(inputId = paste0("CtrlPlo", i),
+          #            label = BoxesList[i],
+          #            #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
+          #            choices = names(InitDf()$Files))
+        ##choices = names(InitDf()$Files))
+        #choices = list("Not good", "average" , "good"))
+        #)
+      }
+      v
+    })
+  })
+  
   
   # Update
   
