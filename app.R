@@ -197,23 +197,39 @@ server <- function(input, output, session) {
   
   # Add multiple boxes
   #observeEvent(input$InSample, {
-  observeEvent(input$InCtrl, {
+  observeEvent(input$InFiles, {
     req(InitDf())
-    BoxesList <- paste("Control", 1:input$InCtrl)
-    v <- list()
-    for (i in 1:length(BoxesList)){
-      v[[i]] <- #box(#width = 3,
-        #title = h4(BoxesList[i]),
-        selectInput(inputId = paste0("slider", i),
-                    label = BoxesList[i],
-                    #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
-                    choices = names(InitDf()$Files))
-                    ##choices = names(InitDf()$Files))
-                    #choices = list("Not good", "average" , "good"))
-      #)
-    }
+#    BoxesList <- paste("Control", 1:input$InCtrl)
+#    v <- list()
+#    for (i in 1:length(BoxesList)){
+#      v[[i]] <- #box(#width = 3,
+#        #title = h4(BoxesList[i]),
+#        selectInput(inputId = paste0("slider", i),
+#                    label = BoxesList[i],
+#                    #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
+#                    choices = names(InitDf()$Files))
+#                    ##choices = names(InitDf()$Files))
+#                    #choices = list("Not good", "average" , "good"))
+#      #)
+#    }
     
-    output$myboxes <- renderUI(v)
+    #output$myboxes <- renderUI(v)
+    output$myboxes <- renderUI({
+      BoxesList <- paste("Control", 1:input$InCtrl)
+      v <- list()
+      for (i in 1:length(BoxesList)){
+        v[[i]] <- #box(#width = 3,
+          #title = h4(BoxesList[i]),
+          selectInput(inputId = paste0("slider", i),
+                      label = BoxesList[i],
+                      #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
+                      choices = names(InitDf()$Files))
+        ##choices = names(InitDf()$Files))
+        #choices = list("Not good", "average" , "good"))
+        #)
+      }
+      v
+    })
   })
   
   # Update
