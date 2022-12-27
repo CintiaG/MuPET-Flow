@@ -76,6 +76,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       div(style="display: inline-block;vertical-align:top; width: 150px;",
                                           uiOutput("myboxes2")
                                       ),
+                                      actionButton(inputId = "do", label = "Click Me"),
                                     ),
                                     mainPanel(
                                       #"Some tables and plots"
@@ -433,33 +434,41 @@ server <- function(input, output, session) {
   # Try to select dataframe per sample
   #observeEvent(input$CtrlPlo, {
   # What to observe InCtrl
-  observeEvent(c(input$InFiles, input$slider1), {
+  #MyThingsToObs <- "casa"#paste0("input$slider", 1:input$InCtrl)
+  
+  #observeEvent(c(input$InFiles, input$slider1), {
+  
+  
+  observeEvent(input$do, {
+  #observeEvent(eval(parse(text = paste("c(", paste0("input$slider", 1:input$InCtrl, collapse = ", "), ")"))), {
     req(input$slider1)
     #Df$Ctrls <- Df$data[grep(input$slider1, Df$data$Sample),]
     output$selected_var <- renderText({ 
-      #input$slider1
-      Var <- NULL
-      #Sliders <- grep("slider", names(input), value = TRUE)
-      #for (Slider in Sliders){
-      #  Var <- input$Slider
-      #}
-      #paste0("input$slider", 1:input$InCtrl)
-      #input$slider1
-      #Pattern <- paste(names(input)[grep("slider", names(input))], sep = "|")
-      #Var
-      MyText <- paste0("input$slider", 1:input$InCtrl)
-      #eval(parse(text = MyText))
-      for (Text in MyText){
-        Var <- c(Var, eval(parse(text = Text)))
-      }
-      Var <- paste(Var, collapse = "|")
-      Var
+      paste0("input$slider", 1:input$InCtrl, collapse = ", ")
+      #expr(1 + 1)
+      #eval(parse(text = paste("c(", paste0("input$slider", 1:input$InCtrl, collapse = ", "), ", 'input$InFiles'", ")")))
     })
     
     
+    Pattern <- NULL
+    #Sliders <- grep("slider", names(input), value = TRUE)
+    #for (Slider in Sliders){
+    #  Pattern <- input$Slider
+    #}
+    #paste0("input$slider", 1:input$InCtrl)
+    #input$slider1
+    #Pattern <- paste(names(input)[grep("slider", names(input))], sep = "|")
+    #Pattern
+    MyText <- paste0("input$slider", 1:input$InCtrl)
+    #eval(parse(text = MyText))
+    for (Text in MyText){
+      Pattern <- c(Pattern, eval(parse(text = Text)))
+    }
+    
+    Pattern <- paste(Pattern, collapse = "|")
     
     
-    Df$Ctrls <- Df$data[grep(input$slider1, Df$data$Sample),]
+    Df$Ctrls <- Df$data[grep(Pattern, Df$data$Sample),]
     output$ResDf2 <- DT::renderDataTable(isolate(Df$Ctrls),
                                          editable = FALSE)
   })
