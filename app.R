@@ -263,13 +263,6 @@ server <- function(input, output, session) {
                        min = 1,
                        #max = 5,
                        step = 1)
-          #selectInput(inputId = paste0("CtrlPlo", i),
-          #            label = BoxesList[i],
-          #            #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
-          #            choices = names(InitDf()$Files))
-        ##choices = names(InitDf()$Files))
-        #choices = list("Not good", "average" , "good"))
-        #)
       }
       v
     })
@@ -390,28 +383,26 @@ server <- function(input, output, session) {
     # Generate new data frame for regression calculation
     # Does this have to be together?
    # Df2 <- Df
-    Df2 <- Df$data[,c(1,5,6)]
+    #Df2 <- Df$data[,c(1,5,6)]
     #Df2$data <- Df$data[,c(1,5,6)]
     #Df2$data <- Df$data
     # Combine G1 and G2 fluorescent intensity
     #Df2$data <- gather(data = Df2$data,
-    Df2 <- gather(data = Df2,
-                  key = "Phase",
-                  value = "Intensity",
-                  -Sample)
+    #Df2 <- gather(data = Df2,
+    #              key = "Phase",
+    #              value = "Intensity",
+    #              -Sample)
     # Add ploidy
-    Df2$Ploidy <- NA#input$InCtrl
+    #Df2$Ploidy <- NA#input$InCtrl
     #Df2$Ploidy <- 1:input$InCtrl
     
     # Order alphabetically
     #Df2 <- Df2[order(Df2$Sample),]
     
-    output$selected_var <- renderText({ 
-      class(Df$data)
-    })
     
-    output$ResDf2 <- DT::renderDataTable(isolate(Df2),
-                                         editable = FALSE)
+    
+    #output$ResDf2 <- DT::renderDataTable(isolate(Df2),
+    #                                     editable = FALSE)
   })
   
   #Df3 <- reactiveValues(data = NULL)
@@ -436,6 +427,23 @@ server <- function(input, output, session) {
     # Order alphabetically
     Df$data2 <- Df$data2[order(Df$data2$Sample),]
     output$ResDf3 <- DT::renderDataTable(isolate(Df$data2),
+                                         editable = FALSE)
+  })
+  
+  # Try to select dataframe per sample
+  #observeEvent(input$CtrlPlo, {
+  observeEvent(c(input$InFiles, input$slider1), {
+    req(input$slider1)
+    #Df$Ctrls <- Df$data[grep(input$slider1, Df$data$Sample),]
+    output$selected_var <- renderText({ 
+      #input$slider1
+      grep(input$slider1, Df$data$Sample)
+    })
+    
+    
+    
+    Df$Ctrls <- Df$data[grep(input$slider1, Df$data$Sample),]
+    output$ResDf2 <- DT::renderDataTable(isolate(Df$Ctrls),
                                          editable = FALSE)
   })
 
