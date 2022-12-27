@@ -413,6 +413,31 @@ server <- function(input, output, session) {
     output$ResDf2 <- DT::renderDataTable(isolate(Df2),
                                          editable = FALSE)
   })
+  
+  #Df3 <- reactiveValues(data = NULL)
+  # observe more things? correct things?
+  # init Df2 that updates with df?
+  observeEvent(c(input$InFiles, input$InBox, input$InCtrl), {
+    req(InitDf())
+    #Df$data2 <- Df$data
+    
+    Df$data2 <- Df$data[,c(1,5,6)]
+    #Df2$data <- Df$data[,c(1,5,6)]
+    #Df2$data <- Df$data
+    # Combine G1 and G2 fluorescent intensity
+    #Df2$data <- gather(data = Df2$data,
+    Df$data2 <- gather(data = Df$data2,
+                  key = "Phase",
+                  value = "Intensity",
+                  -Sample)
+    # Add ploidy
+    Df$data2$Ploidy <- NA#input$InCtrl
+    
+    # Order alphabetically
+    Df$data2 <- Df$data2[order(Df$data2$Sample),]
+    output$ResDf3 <- DT::renderDataTable(isolate(Df$data2),
+                                         editable = FALSE)
+  })
 
   # Create plot line
   PlotLine <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan), {
@@ -506,16 +531,16 @@ server <- function(input, output, session) {
     DT::replaceData(Proxy, Df$data)
   })
   # Controls ploidy
-#  observeEvent(input$InCtrl, {
+  observeEvent(input$CtrlPlo1, {
 #    req(Df2)
 #    Df2$Ploidy <- input$InCtrl
     #SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Update smooth
-    #Df$data[SampNum, 2] <- input$InChan
+    Df$data2$Ploidy <- input$CtrlPlo1
     # Replace data
- #   Proxy <- DT::dataTableProxy('ResDf2')
-#    DT::replaceData(Proxy, Df2)
-#  })
+    Proxy <- DT::dataTableProxy('ResDf3')
+    DT::replaceData(Proxy, Df$data2)
+  })
   
   
   # Download CSV
