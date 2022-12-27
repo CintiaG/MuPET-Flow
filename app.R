@@ -79,8 +79,11 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     ),
                                     mainPanel(
                                       #"Some tables and plots"
+                                      # Remove selected var, to prove variables
                                       textOutput("selected_var"),
+                                      h3("Controls"),
                                       DT::dataTableOutput("ResDf2"),
+                                      DT::dataTableOutput("ResDf3"),
                                       #           DT::dataTableOutput("ResDf")
                                     ),
                            ),
@@ -373,53 +376,38 @@ server <- function(input, output, session) {
                           Window = InitDf()$Windows,
                           G1 = InitDf()$G1s,
                           G2 = InitDf()$G2s)
-    # Generate new data frame for regression calculation
-    # Does this have to be together?
-    ##Df2 <- Df$data[,c(1,5,6)]
-    # Combine G1 and G2 fluorescent intensity
-    ##Df2 <- gather(data = Df2,
-    ##             key = "Phase",
-    ##             value = "Intensity",
-    ##             -Sample)
-    # Add ploidy
-    ##Df2$Ploidy <- length(input$InCtrl)
-    #Df2$Ploidy <- 1:input$InCtrl
-    
-    # Order alphabetically
-    ##Df2 <- Df2[order(Df2$Sample),]
-    
-    ##output$selected_var <- renderText({ 
-    ##  length(input$InCtrl)
-    ##})
     
     output$ResDf <- DT::renderDataTable(isolate(Df$data),
                                         editable = FALSE)
-    
-    ##output$ResDf2 <- DT::renderDataTable(isolate(Df2),
-    ##                                    editable = FALSE)
-  })
+  #})
   
-  observeEvent(input$InCtrl, {
-    req(Df$data)
+  #Df2 <- reactiveValues(data = NULL)
+  #Df2 <- reactiveValues()
+  
+  #observeEvent(input$InFiles, {
+  #  req(Df)
     #req(input$InCtrl)
     # Generate new data frame for regression calculation
     # Does this have to be together?
-    #Df <- output$ResDf
+   # Df2 <- Df
     Df2 <- Df$data[,c(1,5,6)]
+    #Df2$data <- Df$data[,c(1,5,6)]
+    #Df2$data <- Df$data
     # Combine G1 and G2 fluorescent intensity
+    #Df2$data <- gather(data = Df2$data,
     Df2 <- gather(data = Df2,
                   key = "Phase",
                   value = "Intensity",
                   -Sample)
     # Add ploidy
-    Df2$Ploidy <- input$InCtrl
+    Df2$Ploidy <- NA#input$InCtrl
     #Df2$Ploidy <- 1:input$InCtrl
     
     # Order alphabetically
-    Df2 <- Df2[order(Df2$Sample),]
+    #Df2 <- Df2[order(Df2$Sample),]
     
     output$selected_var <- renderText({ 
-      length(input$InCtrl)
+      class(Df$data)
     })
     
     output$ResDf2 <- DT::renderDataTable(isolate(Df2),
@@ -517,6 +505,18 @@ server <- function(input, output, session) {
     Proxy <- DT::dataTableProxy('ResDf')
     DT::replaceData(Proxy, Df$data)
   })
+  # Controls ploidy
+#  observeEvent(input$InCtrl, {
+#    req(Df2)
+#    Df2$Ploidy <- input$InCtrl
+    #SampNum <- grep(input$InSample, names(InitDf()$Files))
+    # Update smooth
+    #Df$data[SampNum, 2] <- input$InChan
+    # Replace data
+ #   Proxy <- DT::dataTableProxy('ResDf2')
+#    DT::replaceData(Proxy, Df2)
+#  })
+  
   
   # Download CSV
   output$DownloadData <- downloadHandler(
