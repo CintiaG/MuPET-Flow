@@ -52,7 +52,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       downloadButton("DownloadData", "Download"),
                                     ),
                                     mainPanel(
-                                      # Outputs
+                                      # Peaks outputs
                                       h3("Histogram"),
                                       # Plot histogram
                                       plotOutput("HisPlot"),
@@ -66,24 +66,24 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       # Select controls
                                       uiOutput("CtrlSel"),
                                       # Display boxes 
-                                      div(style="display: inline-block;vertical-align:top; width: 150px;",
+                                      div(style = "display: inline-block;vertical-align:top; width: 150px;",
                                           # Change nvariable name
                                           uiOutput("myboxes")
                                       ),
                                       # Separator
-                                      div(style="display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
+                                      div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
                                       # Ploidy level box (Change variable name)
-                                      div(style="display: inline-block;vertical-align:top; width: 150px;",
+                                      div(style = "display: inline-block;vertical-align:top; width: 150px;",
                                           uiOutput("myboxes2")
                                       ),
-                                      actionButton(inputId = "do", label = "Click Me"),
+                                      actionButton(inputId = "InReg", label = "Regression"),
                                     ),
                                     mainPanel(
-                                      #"Some tables and plots"
-                                      # Remove selected var, to prove variables
-                                      textOutput("selected_var"),
-                                      h3("Controls"),
+                                      # Regression outputs
+                                      h3("Controls (should be sustitued by graph"),
+                                      # Plot regression
                                       DT::dataTableOutput("ResDf2"),
+                                      h3("Results?"),
                                       DT::dataTableOutput("ResDf3"),
                                       #           DT::dataTableOutput("ResDf")
                                     ),
@@ -214,34 +214,15 @@ server <- function(input, output, session) {
   #observeEvent(input$InSample, {
   observeEvent(input$InFiles, {
     req(InitDf())
-#    BoxesList <- paste("Control", 1:input$InCtrl)
-#    v <- list()
-#    for (i in 1:length(BoxesList)){
-#      v[[i]] <- #box(#width = 3,
-#        #title = h4(BoxesList[i]),
-#        selectInput(inputId = paste0("slider", i),
-#                    label = BoxesList[i],
-#                    #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
-#                    choices = names(InitDf()$Files))
-#                    ##choices = names(InitDf()$Files))
-#                    #choices = list("Not good", "average" , "good"))
-#      #)
-#    }
-    
-    #output$myboxes <- renderUI(v)
+
     output$myboxes <- renderUI({
       BoxesList <- paste("Control", 1:input$InCtrl)
       v <- list()
       for (i in 1:length(BoxesList)){
-        v[[i]] <- #box(#width = 3,
-          #title = h4(BoxesList[i]),
-          selectInput(inputId = paste0("slider", i),
-                      label = BoxesList[i],
-                      #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
-                      choices = names(InitDf()$Files))
-        ##choices = names(InitDf()$Files))
-        #choices = list("Not good", "average" , "good"))
-        #)
+        v[[i]] <- selectInput(inputId = paste0("slider", i),
+                              label = BoxesList[i],
+                              #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
+                              choices = names(InitDf()$Files))
       }
       v
     })
@@ -251,19 +232,16 @@ server <- function(input, output, session) {
   observeEvent(input$InFiles, {
     req(InitDf())
     
-    #output$myboxes <- renderUI(v)
     output$myboxes2 <- renderUI({
       BoxesList <- paste("Ploidy", 1:input$InCtrl)
       v <- list()
       for (i in 1:length(BoxesList)){
-        v[[i]] <- #box(#width = 3,
-          #title = h4(BoxesList[i]),
-          numericInput(inputId = paste0("CtrlPlo", i),
-                       label = BoxesList[i],
-                       value = 3,
-                       min = 1,
-                       #max = 5,
-                       step = 1)
+        v[[i]] <- numericInput(inputId = paste0("CtrlPlo", i),
+                               label = BoxesList[i],
+                               value = 3,
+                               min = 1,
+                               #max = 5,
+                               step = 1)
       }
       v
     })
@@ -271,20 +249,20 @@ server <- function(input, output, session) {
   
   
   # Update
-#  observeEvent(input$InFiles, {
-#    req(InitDf())
-#    # Displays file names
-#    output$CtrlSel <- renderUI({
-#      numericInput(inputId = "InCtrl",
-#                   label = "Number of controls",
-#                   value = 5,
-#                   #value = ifelse(length(input$InFiles) < 5, length(input$InFiles), 5),
-#                   #value = ifelse(length(input$InFiles[, 1]) < 5, length(input$InFiles[, 1]), 5),
-#                   min = 1,
-#                   step = 1)
-#    })
-#  })
-
+  #  observeEvent(input$InFiles, {
+  #    req(InitDf())
+  #    # Displays file names
+  #    output$CtrlSel <- renderUI({
+  #      numericInput(inputId = "InCtrl",
+  #                   label = "Number of controls",
+  #                   value = 5,
+  #                   #value = ifelse(length(input$InFiles) < 5, length(input$InFiles), 5),
+  #                   #value = ifelse(length(input$InFiles[, 1]) < 5, length(input$InFiles[, 1]), 5),
+  #                   min = 1,
+  #                   step = 1)
+  #    })
+  #  })
+  
   # Define specific functions
   # Lines
   GetLine <- function(File, ChanNum, Span){
@@ -373,63 +351,32 @@ server <- function(input, output, session) {
     
     output$ResDf <- DT::renderDataTable(isolate(Df$data),
                                         editable = FALSE)
-  #})
-  
-  #Df2 <- reactiveValues(data = NULL)
-  #Df2 <- reactiveValues()
-  
-  #observeEvent(input$InFiles, {
-  #  req(Df)
-    #req(input$InCtrl)
-    # Generate new data frame for regression calculation
-    # Does this have to be together?
-   # Df2 <- Df
-    #Df2 <- Df$data[,c(1,5,6)]
-    #Df2$data <- Df$data[,c(1,5,6)]
-    #Df2$data <- Df$data
-    # Combine G1 and G2 fluorescent intensity
-    #Df2$data <- gather(data = Df2$data,
-    #Df2 <- gather(data = Df2,
-    #              key = "Phase",
-    #              value = "Intensity",
-    #              -Sample)
-    # Add ploidy
-    #Df2$Ploidy <- NA#input$InCtrl
-    #Df2$Ploidy <- 1:input$InCtrl
-    
-    # Order alphabetically
-    #Df2 <- Df2[order(Df2$Sample),]
-    
-    
-    
-    #output$ResDf2 <- DT::renderDataTable(isolate(Df2),
-    #                                     editable = FALSE)
   })
   
   #Df3 <- reactiveValues(data = NULL)
   # observe more things? correct things?
   # init Df2 that updates with df?
-  observeEvent(c(input$InFiles, input$InBox, input$InCtrl), {
-    req(InitDf())
+  #observeEvent(c(input$InFiles, input$InBox, input$InCtrl), {
+  #  req(InitDf())
     #Df$data2 <- Df$data
     
-    Df$data2 <- Df$data[,c(1,5,6)]
+  #  Df$data2 <- Df$data[,c(1,5,6)]
     #Df2$data <- Df$data[,c(1,5,6)]
     #Df2$data <- Df$data
     # Combine G1 and G2 fluorescent intensity
     #Df2$data <- gather(data = Df2$data,
-    Df$data2 <- gather(data = Df$data2,
-                  key = "Phase",
-                  value = "Intensity",
-                  -Sample)
+  #  Df$data2 <- gather(data = Df$data2,
+  #                key = "Phase",
+  #                value = "Intensity",
+  #                -Sample)
     # Add ploidy
-    Df$data2$Ploidy <- NA#input$InCtrl
+  #  Df$data2$Ploidy <- NA#input$InCtrl
     
     # Order alphabetically
-    Df$data2 <- Df$data2[order(Df$data2$Sample),]
-    output$ResDf3 <- DT::renderDataTable(isolate(Df$data2),
-                                         editable = FALSE)
-  })
+  #  Df$data2 <- Df$data2[order(Df$data2$Sample),]
+  #  output$ResDf2 <- DT::renderDataTable(isolate(Df$data2),
+  #                                       editable = FALSE)
+  #})
   
   # Try to select dataframe per sample
   #observeEvent(input$CtrlPlo, {
@@ -439,15 +386,24 @@ server <- function(input, output, session) {
   #observeEvent(c(input$InFiles, input$slider1), {
   
   
-  observeEvent(input$do, {
+  observeEvent(input$InReg, {
   #observeEvent(eval(parse(text = paste("c(", paste0("input$slider", 1:input$InCtrl, collapse = ", "), ")"))), {
     req(input$slider1)
-    #Df$Ctrls <- Df$data[grep(input$slider1, Df$data$Sample),]
-    output$selected_var <- renderText({ 
-      paste0("input$slider", 1:input$InCtrl, collapse = ", ")
-      #expr(1 + 1)
-      #eval(parse(text = paste("c(", paste0("input$slider", 1:input$InCtrl, collapse = ", "), ", 'input$InFiles'", ")")))
-    })
+    
+    # Select required information from Df
+    Df$data2 <- Df$data[,c(1,5,6)]
+    
+    # Combine G1 and G2 fluorescent intensity
+    Df$data2 <- gather(data = Df$data2,
+                       key = "Phase",
+                       value = "Intensity",
+                       -Sample)
+    
+    # Order alphabetically
+    Df$data2 <- Df$data2[order(Df$data2$Sample),]
+    # Rename rownames 
+    #rownames(Df$data2) <- 1:(input$InCtrl * 2)
+    
     
     
     Pattern <- NULL
@@ -459,20 +415,47 @@ server <- function(input, output, session) {
     #input$slider1
     #Pattern <- paste(names(input)[grep("slider", names(input))], sep = "|")
     #Pattern
-    MyText <- paste0("input$slider", 1:input$InCtrl)
-    #eval(parse(text = MyText))
-    for (Text in MyText){
-      Pattern <- c(Pattern, eval(parse(text = Text)))
+    # Change to sliders name?
+    Sliders <- paste0("input$slider", 1:input$InCtrl)
+    #eval(parse(text = Sliders))
+    for (Slider in Sliders){
+      Pattern <- c(Pattern, eval(parse(text = Slider)))
     }
     
     Pattern <- paste(Pattern, collapse = "|")
     
+    # Here I would have to seprate the dataframes first
+    # in orifinal stran patter ins control, kkepp?
+    #Df$Ctrls <- Df$data2[grep(Pattern, Df$data2$Strain),]
+    Df$Ctrls <- Df$data2[grep(Pattern, Df$data2$Sample),]
+    Df$Tests <- Df$data2[-grep(Pattern, Df$data2$Sample),]
     
-    Df$Ctrls <- Df$data[grep(Pattern, Df$data$Sample),]
-    output$ResDf2 <- DT::renderDataTable(isolate(Df$Ctrls),
+   
+    
+    Ploidies <- paste0("input$CtrlPlo", 1:input$InCtrl)
+    
+    AllPloidies <- NULL
+    
+    # Same but to obtain ploidues
+    for (Ploidy in Ploidies){
+      AllPloidies <- c(AllPloidies, eval(parse(text = Ploidy)))
+    }
+    
+    
+    # Add ploidy
+    Df$Ctrls$Ploidy <- rep(AllPloidies, each = 2)#NA#input$InCtrl
+    
+    output$ResDf3 <- DT::renderDataTable(isolate(Df$Ctrls),
                                          editable = FALSE)
+    
+    
+    #Df$Ctrls <- Df$data[grep(Pattern, Df$data$Sample),]
+    
+    
+    #output$ResDf3 <- DT::renderDataTable(isolate(Df$Ctrls),
+    #                                     editable = FALSE)
   })
-
+  
   # Create plot line
   PlotLine <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan), {
     req(InitDf())
