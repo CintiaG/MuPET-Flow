@@ -432,13 +432,30 @@ server <- function(input, output, session) {
   
   # Try to select dataframe per sample
   #observeEvent(input$CtrlPlo, {
+  # What to observe InCtrl
   observeEvent(c(input$InFiles, input$slider1), {
     req(input$slider1)
     #Df$Ctrls <- Df$data[grep(input$slider1, Df$data$Sample),]
     output$selected_var <- renderText({ 
       #input$slider1
-      grep(input$slider1, Df$data$Sample)
+      Var <- NULL
+      #Sliders <- grep("slider", names(input), value = TRUE)
+      #for (Slider in Sliders){
+      #  Var <- input$Slider
+      #}
+      #paste0("input$slider", 1:input$InCtrl)
+      #input$slider1
+      #Pattern <- paste(names(input)[grep("slider", names(input))], sep = "|")
+      #Var
+      MyText <- paste0("input$slider", 1:input$InCtrl)
+      #eval(parse(text = MyText))
+      for (Text in MyText){
+        Var <- c(Var, eval(parse(text = Text)))
+      }
+      Var <- paste(Var, collapse = "|")
+      Var
     })
+    
     
     
     
