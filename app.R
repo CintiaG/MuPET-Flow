@@ -20,69 +20,72 @@ library(ggrepel)
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
-                navbarPage(
-                  "Flow Peaks",
-                  tabPanel("Peaks",
-                           sidebarPanel(
-                             # Inputs
-                             tags$h3("Input:"),
-                             # Input files
-                             fileInput(inputId = "InFiles",
-                                       label = "Upload FCS files",
-                                       multiple = TRUE,
-                                       accept = c(".FCS", ".fcs")),
-                             # Select input file
-                             uiOutput("FileDropdown"),
-                             # Select channel
-                             uiOutput("ChanDropdown"),
-                             # Select smoothing
-                             uiOutput("SmoothSel"),
-                             # Select window
-                             uiOutput("WindowSel"),
-                             # Select maximum number of peaks
-                             numericInput(inputId = "MaxPeaks",
-                                          label = "Select maximun number of peaks",
-                                          value = 3,
-                                          min = 1,
-                                          max = 5,
-                                          step = 1),
-                             # Generate select G1 an G2 peaks selection box
-                             uiOutput("InBox"),
-                             # Save data
-                             downloadButton("DownloadData", "Download"),
-                             #actionButton(inputId = "InSave",
-                            #              label = "Save (pending)"),
+                navbarPage("Flow Peaks",
+                           tabPanel("Peaks",
+                                    sidebarPanel(
+                                      # Inputs
+                                      tags$h3("Input:"),
+                                      # Input files
+                                      # Perhaps for style, calculte this in server aswell
+                                      fileInput(inputId = "InFiles",
+                                                label = "Upload FCS files",
+                                                multiple = TRUE,
+                                                accept = c(".FCS", ".fcs")),
+                                      # Select input file
+                                      uiOutput("FileDropdown"),
+                                      # Select channel
+                                      uiOutput("ChanDropdown"),
+                                      # Select smoothing
+                                      uiOutput("SmoothSel"),
+                                      # Select window
+                                      uiOutput("WindowSel"),
+                                      # Select maximum number of peaks
+                                      numericInput(inputId = "MaxPeaks",
+                                                   label = "Select maximun number of peaks",
+                                                   value = 3,
+                                                   min = 1,
+                                                   max = 5,
+                                                   step = 1),
+                                      # Generate select G1 an G2 peaks selection box
+                                      uiOutput("InBox"),
+                                      # Save data
+                                      downloadButton("DownloadData", "Download"),
+                                    ),
+                                    mainPanel(
+                                      # Outputs
+                                      h3("Histogram"),
+                                      # Plot histogram
+                                      plotOutput("HisPlot"),
+                                      h3("Estimated peaks and used parameters"),
+                                      # Display table result
+                                      DT::dataTableOutput("ResDf"),
+                                    )
                            ),
-                           mainPanel(
-                             # Outputs
-                             h3("Histogram"),
-                             # Plot histogram
-                             plotOutput("HisPlot"),
-                             h3("Estimated peaks and used parameters"),
-                             # Display table result
-                             DT::dataTableOutput("ResDf"),
-                           )
-                  ),
-                  tabPanel("Regression",
-                           sidebarPanel(
-                             uiOutput("CtrlSel"),
-                             #"Boxes", 
-                             div(style="display: inline-block;vertical-align:top; width: 150px;",
-                                 uiOutput("myboxes")
-                             ),
-                             div(style="display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
-                             div(style="display: inline-block;vertical-align:top; width: 150px;",
-                                 uiOutput("myboxes2")
-                             ),
+                           tabPanel("Regression",
+                                    sidebarPanel(
+                                      # Select controls
+                                      uiOutput("CtrlSel"),
+                                      # Display boxes 
+                                      div(style="display: inline-block;vertical-align:top; width: 150px;",
+                                          # Change nvariable name
+                                          uiOutput("myboxes")
+                                      ),
+                                      # Separator
+                                      div(style="display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
+                                      # Ploidy level box (Change variable name)
+                                      div(style="display: inline-block;vertical-align:top; width: 150px;",
+                                          uiOutput("myboxes2")
+                                      ),
+                                    ),
+                                    mainPanel(
+                                      #"Some tables and plots"
+                                      textOutput("selected_var"),
+                                      DT::dataTableOutput("ResDf2"),
+                                      #           DT::dataTableOutput("ResDf")
+                                    ),
                            ),
-                           mainPanel(
-                             #"Some tables and plots"
-                             DT::dataTableOutput("ResDf2"),
-                             #           DT::dataTableOutput("ResDf")
-                           ),
-                  ),
                            #"Estimate genome size based on known controls (in construction)."),
-                  tabPanel("Help", "In construction...")
+                           tabPanel("Help", "In construction...")
                 )
 )
 
@@ -196,7 +199,9 @@ server <- function(input, output, session) {
   output$CtrlSel <- renderUI({
     numericInput(inputId = "InCtrl",
                  label = "Number of controls",
-                 value = 5,
+                 #value = 5,
+                 #value = ifelse(length(input$InFiles) < 5, length(input$InFiles), 5),
+                 value = ifelse(length(input$InFiles[, 1]) < 5, length(input$InFiles[, 1]), 5),
                  min = 1,
                  step = 1)
   })
@@ -269,7 +274,19 @@ server <- function(input, output, session) {
   
   
   # Update
-  
+#  observeEvent(input$InFiles, {
+#    req(InitDf())
+#    # Displays file names
+#    output$CtrlSel <- renderUI({
+#      numericInput(inputId = "InCtrl",
+#                   label = "Number of controls",
+#                   value = 5,
+#                   #value = ifelse(length(input$InFiles) < 5, length(input$InFiles), 5),
+#                   #value = ifelse(length(input$InFiles[, 1]) < 5, length(input$InFiles[, 1]), 5),
+#                   min = 1,
+#                   step = 1)
+#    })
+#  })
 
   # Define specific functions
   # Lines
@@ -357,20 +374,56 @@ server <- function(input, output, session) {
                           G1 = InitDf()$G1s,
                           G2 = InitDf()$G2s)
     # Generate new data frame for regression calculation
-    Df2 <- Df$data[,c(1,5,6)]
+    # Does this have to be together?
+    ##Df2 <- Df$data[,c(1,5,6)]
     # Combine G1 and G2 fluorescent intensity
-    Df2 <- gather(data = Df2,
-                 key = "Phase",
-                 value = "Intensity",
-                 -Sample)
+    ##Df2 <- gather(data = Df2,
+    ##             key = "Phase",
+    ##             value = "Intensity",
+    ##             -Sample)
+    # Add ploidy
+    ##Df2$Ploidy <- length(input$InCtrl)
+    #Df2$Ploidy <- 1:input$InCtrl
+    
     # Order alphabetically
-    Df2 <- Df2[order(Df2$Sample),]
+    ##Df2 <- Df2[order(Df2$Sample),]
+    
+    ##output$selected_var <- renderText({ 
+    ##  length(input$InCtrl)
+    ##})
     
     output$ResDf <- DT::renderDataTable(isolate(Df$data),
                                         editable = FALSE)
     
+    ##output$ResDf2 <- DT::renderDataTable(isolate(Df2),
+    ##                                    editable = FALSE)
+  })
+  
+  observeEvent(input$InCtrl, {
+    req(Df$data)
+    #req(input$InCtrl)
+    # Generate new data frame for regression calculation
+    # Does this have to be together?
+    #Df <- output$ResDf
+    Df2 <- Df$data[,c(1,5,6)]
+    # Combine G1 and G2 fluorescent intensity
+    Df2 <- gather(data = Df2,
+                  key = "Phase",
+                  value = "Intensity",
+                  -Sample)
+    # Add ploidy
+    Df2$Ploidy <- input$InCtrl
+    #Df2$Ploidy <- 1:input$InCtrl
+    
+    # Order alphabetically
+    Df2 <- Df2[order(Df2$Sample),]
+    
+    output$selected_var <- renderText({ 
+      length(input$InCtrl)
+    })
+    
     output$ResDf2 <- DT::renderDataTable(isolate(Df2),
-                                        editable = FALSE)
+                                         editable = FALSE)
   })
 
   # Create plot line
