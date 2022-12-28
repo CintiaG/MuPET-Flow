@@ -81,6 +81,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     mainPanel(
                                       # Regression outputs
                                       h3("Controls (should be sustitued by graph"),
+                                      plotOutput("RegPlot"),
                                       # Plot regression
                                       DT::dataTableOutput("ResDf2"),
                                       h3("Results?"),
@@ -422,6 +423,8 @@ server <- function(input, output, session) {
       Pattern <- c(Pattern, eval(parse(text = Slider)))
     }
     
+    Pattern2 <- Pattern
+    
     Pattern <- paste(Pattern, collapse = "|")
     
     # Here I would have to seprate the dataframes first
@@ -441,13 +444,40 @@ server <- function(input, output, session) {
       AllPloidies <- c(AllPloidies, eval(parse(text = Ploidy)))
     }
     
+    # Change order of all ploidies to match the one in the data frame
+    
+    Idx <- match(unique(Df$Ctrls$Sample), Pattern2)
+    
+    AllPloidies <- AllPloidies[Idx]
+    
+    AllPloidies <- rep(AllPloidies, each = 2) * 1:2#NA#input$InCtrl
+    
+    
     
     # Add ploidy
-    Df$Ctrls$Ploidy <- rep(AllPloidies, each = 2)#NA#input$InCtrl
+    Df$Ctrls$Ploidy <- AllPloidies
+    
+    Df$Ctrls$Intensity <- as.numeric(Df$Ctrls$Intensity)
     
     output$ResDf3 <- DT::renderDataTable(isolate(Df$Ctrls),
                                          editable = FALSE)
     
+    # Linear model
+    Mod <- lm(Ploidy ~ Intensity, data = Df$Ctrls)
+    
+    # Summary
+    # render text?
+    #summary(Mod)
+    
+    output$RegPlot <- renderPlot({
+      ggplot(data = Df$Ctrls, mapping = aes(Intensity, Ploidy)) +
+        geom_point(color = "red") +
+        geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "black") +
+      #geom_point(data = DfTests, color = "blue") +
+      #geom_text(label = DfRes$Strain)
+      #geom_text_repel(label = DfRes$Strain)
+        geom_text_repel(label = paste(Df$Ctrls$Sample, Df$Ctrls$Phase))
+    })
     
     #Df$Ctrls <- Df$data[grep(Pattern, Df$data$Sample),]
     
