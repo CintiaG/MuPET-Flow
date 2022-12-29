@@ -20,18 +20,17 @@ library(ggrepel)
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
+                # App name
                 navbarPage("Flow Peaks",
+                           # Panel 1
                            tabPanel("Peaks",
+                                    # Panel 1 inputs
                                     sidebarPanel(
-                                      # Inputs
-                                      tags$h3("Input:"),
+                                      h3("Inputs"),
+                                      # Terminology?
                                       # Input files
-                                      # Perhaps for style, calculte this in server aswell
-                                      fileInput(inputId = "InFiles",
-                                                label = "Upload FCS files",
-                                                multiple = TRUE,
-                                                accept = c(".FCS", ".fcs")),
-                                      # Select input file
+                                      uiOutput("FileUpload"),
+                                      # Select file or sample
                                       uiOutput("FileDropdown"),
                                       # Select channel
                                       uiOutput("ChanDropdown"),
@@ -40,34 +39,33 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       # Select window
                                       uiOutput("WindowSel"),
                                       # Select maximum number of peaks
-                                      numericInput(inputId = "MaxPeaks",
-                                                   label = "Select maximun number of peaks",
-                                                   value = 3,
-                                                   min = 1,
-                                                   max = 5,
-                                                   step = 1),
-                                      # Generate select G1 an G2 peaks selection box
+                                      uiOutput("PeaksSel"),
+                                      # Select calculated peaks to plot
                                       uiOutput("InBox"),
-                                      # Save data
+                                      # Download data
                                       downloadButton("DownloadData", "Download"),
                                     ),
+                                    # Panel 1 outputs
                                     mainPanel(
-                                      # Peaks outputs
+                                      # Histogram plot
                                       h3("Histogram"),
-                                      # Plot histogram
                                       plotOutput("HisPlot"),
+                                      #  Table results 1
                                       h3("Estimated peaks and used parameters"),
-                                      # Display table result
                                       DT::dataTableOutput("ResDf"),
                                     )
                            ),
+                           # Panel 2
                            tabPanel("Regression",
+                                    # Panel 2 inputs
                                     sidebarPanel(
+                                      h3("Inputs"),
                                       # Select controls
                                       uiOutput("CtrlSel"),
-                                      # Display boxes 
+                                      # Display boxes
+                                      # HTML instructions for proper display
                                       div(style = "display: inline-block;vertical-align:top; width: 150px;",
-                                          # Change nvariable name
+                                          # Change variable name
                                           uiOutput("myboxes")
                                       ),
                                       # Separator
@@ -76,17 +74,17 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       div(style = "display: inline-block;vertical-align:top; width: 150px;",
                                           uiOutput("myboxes2")
                                       ),
+                                      # Perform regression and prediction
                                       actionButton(inputId = "InReg", label = "Regression"),
                                     ),
+                                    # Panel 2 outputs
                                     mainPanel(
-                                      # Regression outputs
-                                      h3("Controls (should be sustitued by graph"),
+                                      # Regression plot
+                                      h3("Regression"),
                                       plotOutput("RegPlot"),
-                                      # Plot regression
-                                      DT::dataTableOutput("ResDf2"),
-                                      h3("Results?"),
+                                      #  Table results 2
+                                      h3("Estimated ploidy"),
                                       DT::dataTableOutput("ResDf3"),
-                                      #           DT::dataTableOutput("ResDf")
                                     ),
                            ),
                            #"Estimate genome size based on known controls (in construction)."),
@@ -102,9 +100,16 @@ server <- function(input, output, session) {
   session$onSessionEnded(function() {
     stopApp()
   })
-  # Inputs operations calculated in server
-  # Panel 1
-  # Sample
+  # Inputs calculated in server
+  # Panel 1 inputs
+  # Input files
+  output$FileUpload <- renderUI({
+    fileInput(inputId = "InFiles",
+              label = "Upload FCS files",
+              multiple = TRUE,
+              accept = c(".FCS", ".fcs"))
+  })
+    # Input sample
   output$FileDropdown <- renderUI({
     selectInput(inputId = "InSample",
                 label = "Select a sample",
@@ -134,6 +139,15 @@ server <- function(input, output, session) {
                 min = 1,
                 max = 100,
                 step = 1)
+  })
+  # Maximum number of peaks
+  output$PeaksSel <- renderUI({
+    numericInput(inputId = "MaxPeaks",
+                 label = "Select maximun number of peaks",
+                 value = 3,
+                 min = 1,
+                 max = 5,
+                 step = 1)
   })
   # Box peaks
   output$InBox <- renderUI({
