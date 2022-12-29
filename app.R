@@ -433,6 +433,14 @@ server <- function(input, output, session) {
     Df$Ctrls <- Df$data2[grep(Pattern, Df$data2$Sample),]
     Df$Tests <- Df$data2[-grep(Pattern, Df$data2$Sample),]
     
+    # Add test and control type information
+    Df$Ctrls$Type <- "Control"
+    # To control in case you select no controls, but same for test?
+    if (nrow(Df$Tests) > 0){
+      Df$Tests$Type <- "Test"
+    }
+    #Df$Tests$Type <- "Test"
+    
    
     
     Ploidies <- paste0("input$CtrlPlo", 1:input$InCtrl)
@@ -456,11 +464,12 @@ server <- function(input, output, session) {
     
     # Add ploidy
     Df$Ctrls$Ploidy <- AllPloidies
-    
+    Df$Ctrls$Ploidy2 <- AllPloidies
+    # maybe above
     Df$Ctrls$Intensity <- as.numeric(Df$Ctrls$Intensity)
+    Df$Tests$Intensity <- as.numeric(Df$Tests$Intensity)
     
-    output$ResDf3 <- DT::renderDataTable(isolate(Df$Ctrls),
-                                         editable = FALSE)
+    
     
     # Linear model
     Mod <- lm(Ploidy ~ Intensity, data = Df$Ctrls)
@@ -469,14 +478,28 @@ server <- function(input, output, session) {
     # render text?
     #summary(Mod)
     
+    # Prediction
+    Df$Tests$Ploidy <- predict(Mod, Df$Tests) %>% round(2) # round can be changed
+    Df$Tests$Ploidy2 <- predict(Mod, Df$Tests) %>% round(0) # round can be changed
+    
+    # Combine results
+    Df$Res <- rbind(Df$Ctrls, Df$Tests)
+    
+    # Before rendering data frame, change rownames
+    rownames(Df$Res) <- 1:nrow(Df$Res)
+    
+    # Final output data frame
+    output$ResDf3 <- DT::renderDataTable(isolate(Df$Res),
+                                         editable = FALSE)
+    
     output$RegPlot <- renderPlot({
-      ggplot(data = Df$Ctrls, mapping = aes(Intensity, Ploidy)) +
+      ggplot(data = Df$Res, mapping = aes(Intensity, Ploidy)) +
         geom_point(color = "red") +
         geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "black") +
       #geom_point(data = DfTests, color = "blue") +
       #geom_text(label = DfRes$Strain)
       #geom_text_repel(label = DfRes$Strain)
-        geom_text_repel(label = paste(Df$Ctrls$Sample, Df$Ctrls$Phase))
+        geom_text_repel(label = paste(Df$Res$Sample, Df$Res$Phase))
     })
     
     #Df$Ctrls <- Df$data[grep(Pattern, Df$data$Sample),]
