@@ -17,6 +17,7 @@ library(ggrepel)
 # Pending
 # las modification of name sape
 # orde peraks before saving?
+# The number of peaks behaviour is weird, it is not updated
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
@@ -27,21 +28,20 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     # Panel 1 inputs
                                     sidebarPanel(
                                       h3("Inputs"),
-                                      # Terminology?
                                       # Input files
-                                      uiOutput("FileUpload"),
-                                      # Select file or sample
-                                      uiOutput("FileDropdown"),
+                                      uiOutput("UiFileUp"),
+                                      # Select sample
+                                      uiOutput("UiSampleSel"),
                                       # Select channel
-                                      uiOutput("ChanDropdown"),
-                                      # Select smoothing
-                                      uiOutput("SmoothSel"),
-                                      # Select window
-                                      uiOutput("WindowSel"),
+                                      uiOutput("UiChannelSel"),
+                                      # Adjust smoothing
+                                      uiOutput("UiSmoothNum"),
+                                      # Adjust window
+                                      uiOutput("UiWindowNum"),
                                       # Select maximum number of peaks
-                                      uiOutput("PeaksSel"),
+                                      uiOutput("UiPeaksNum"),
                                       # Select calculated peaks to plot
-                                      uiOutput("InBox"),
+                                      uiOutput("UiPeaksBox"),
                                       # Download data
                                       downloadButton("DownloadData", "Download"),
                                     ),
@@ -52,7 +52,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       plotOutput("HisPlot"),
                                       #  Table results 1
                                       h3("Estimated peaks and used parameters"),
-                                      DT::dataTableOutput("ResDf"),
+                                      DT::dataTableOutput("ResDf1"),
                                     )
                            ),
                            # Panel 2
@@ -61,18 +61,18 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     sidebarPanel(
                                       h3("Inputs"),
                                       # Select controls
-                                      uiOutput("CtrlSel"),
+                                      uiOutput("UiCtrlsNum"),
                                       # Display boxes
                                       # HTML instructions for proper display
                                       div(style = "display: inline-block;vertical-align:top; width: 150px;",
                                           # Change variable name
-                                          uiOutput("myboxes")
+                                          uiOutput("UiCtrlsSampleSel")
                                       ),
                                       # Separator
                                       div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
                                       # Ploidy level box (Change variable name)
                                       div(style = "display: inline-block;vertical-align:top; width: 150px;",
-                                          uiOutput("myboxes2")
+                                          uiOutput("UiCtrlsPloNum")
                                       ),
                                       # Perform regression and prediction
                                       actionButton(inputId = "InReg", label = "Regression"),
@@ -84,11 +84,13 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       plotOutput("RegPlot"),
                                       #  Table results 2
                                       h3("Estimated ploidy"),
-                                      DT::dataTableOutput("ResDf3"),
+                                      DT::dataTableOutput("ResDf2"),
                                     ),
                            ),
-                           #"Estimate genome size based on known controls (in construction)."),
-                           tabPanel("Help", "In construction...")
+                           # Panel 3
+                           tabPanel("Help",
+                                    "In construction..."
+                           )
                 )
 )
 
@@ -103,71 +105,80 @@ server <- function(input, output, session) {
   # Inputs calculated in server
   # Panel 1 inputs
   # Input files
-  output$FileUpload <- renderUI({
+  output$UiFileUp <- renderUI({
     fileInput(inputId = "InFiles",
               label = "Upload FCS files",
               multiple = TRUE,
               accept = c(".FCS", ".fcs"))
   })
-    # Input sample
-  output$FileDropdown <- renderUI({
+  # Select sample
+  output$UiSampleSel <- renderUI({
     selectInput(inputId = "InSample",
                 label = "Select a sample",
                 choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
   })
-  # Channels
-  output$ChanDropdown <- renderUI({
+  # Select channel
+  output$UiChannelSel <- renderUI({
     selectInput(inputId = "InChan",
                 label = "Select a channel",
                 choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files[[1]])),
                 selected = ifelse(is.na(input$InFiles), "", names(InitDf()$Files[[1]])[20]))
   })
-  # Smoothing
-  output$SmoothSel <- renderUI({
+  # Adjust smoothing
+  output$UiSmoothNum <- renderUI({
     numericInput(inputId = "InSmooth",
-               label = "Adjust smoothing",
-               value = 0.1,
-               min = 0.02,
-               max = 1,
-               step = 0.02)
+                 label = "Adjust smoothing",
+                 value = 0.1,
+                 min = 0.02,
+                 max = 1,
+                 step = 0.02)
   })
-  # Window
-  output$WindowSel <- renderUI({
+  # Adjust window
+  output$UiWindowNum <- renderUI({
     numericInput(inputId = "InWindow",
-                label = "Adjust window",
-                value = 10,
-                min = 1,
-                max = 100,
-                step = 1)
+                 label = "Adjust window",
+                 value = 10,
+                 min = 1,
+                 max = 100,
+                 step = 1)
   })
-  # Maximum number of peaks
-  output$PeaksSel <- renderUI({
-    numericInput(inputId = "MaxPeaks",
+  # Select maximum number of peaks
+  output$UiPeaksNum <- renderUI({
+    numericInput(inputId = "InMaxPeaks",
                  label = "Select maximun number of peaks",
                  value = 3,
                  min = 1,
                  max = 5,
                  step = 1)
   })
-  # Box peaks
-  output$InBox <- renderUI({
-    checkboxGroupInput(inputId = "InBox",
+  # Select calculated peaks to plot
+  output$UiPeaksBox <- renderUI({
+    checkboxGroupInput(inputId = "InPeaksPlot",
                        label = "Select G1 and G2 peaks",
                        choices = PlotPoints()$MaxIndex,
                        selected = c(PlotPoints()$MaxIndex[1], PlotPoints()$MaxIndex[2]))
   })
+  # Download data
+  output$DownloadData <- downloadHandler(
+    filename <- function() {
+      "peaks.csv"
+    },
+    content <- function(file) {
+      write.csv(Df$data, file, row.names = FALSE)
+    }
+  )
   
   # Update UI when when files are uploaded
   observeEvent(input$InFiles, {
     req(InitDf())
-    # Displays file names
-    output$FileDropdown <- renderUI({
+    # Display sample names
+    output$UiSampleSel <- renderUI({
       selectInput(inputId = "InSample",
                   label = "Select a sample",
                   choices = names(InitDf()$Files))
     })
     # Display channel names
-    output$ChanDropdown <- renderUI({
+    output$UiChannelSel <- renderUI({
       selectInput(inputId = "InChan",
                   label = "Select a channel",
                   choices = names(InitDf()$Files[[1]]),
@@ -175,22 +186,23 @@ server <- function(input, output, session) {
     })
   })
   
-  # Display the last used parameters
+  # Display the last used parameters when changing sample 
+  # Last used channel
   observeEvent(input$InSample, {
     req(InitDf())
     SampNum <- grep(input$InSample, names(InitDf()$Files))
-    output$ChanDropdown <- renderUI({
+    output$UiChannelSel <- renderUI({
       selectInput(inputId = "InChan",
                   label = "Select a channel",
                   choices = names(InitDf()$Files[[1]]),
                   selected = Df$data$Channel[SampNum])
     })
   })
-  
+  # Last used smoothing
   observeEvent(input$InSample, {
     req(InitDf())
     SampNum <- grep(input$InSample, names(InitDf()$Files))
-    output$SmoothSel <- renderUI({
+    output$UiSmoothNum <- renderUI({
       numericInput(inputId = "InSmooth",
                    label = "Adjust smoothing",
                    value = Df$data$Smoothing[SampNum],
@@ -199,11 +211,11 @@ server <- function(input, output, session) {
                    step = 0.02)
     })
   })
-  
+  # Last used window
   observeEvent(input$InSample, {
     req(InitDf())
     SampNum <- grep(input$InSample, names(InitDf()$Files))
-    output$WindowSel <- renderUI({
+    output$UiWindowNum <- renderUI({
       numericInput(inputId = "InWindow",
                    label = "Adjust window",
                    value = Df$data$Window[SampNum],
@@ -213,72 +225,48 @@ server <- function(input, output, session) {
     })
   })
   
-  # Panel 2
-  # Number of controls
-  output$CtrlSel <- renderUI({
-    numericInput(inputId = "InCtrl",
+  # Panel 2 inputs
+  # Select number of controls
+  output$UiCtrlsNum <- renderUI({
+    numericInput(inputId = "InNumCtrl",
                  label = "Number of controls",
-                 #value = 5,
-                 #value = ifelse(length(input$InFiles) < 5, length(input$InFiles), 5),
                  value = ifelse(length(input$InFiles[, 1]) < 5, length(input$InFiles[, 1]), 5),
                  min = 1,
                  step = 1)
   })
-  
-  # Add multiple boxes
-  #observeEvent(input$InSample, {
+  # Create select controls
   observeEvent(input$InFiles, {
     req(InitDf())
-
-    output$myboxes <- renderUI({
-      BoxesList <- paste("Control", 1:input$InCtrl)
-      v <- list()
-      for (i in 1:length(BoxesList)){
-        v[[i]] <- selectInput(inputId = paste0("slider", i),
-                              label = BoxesList[i],
-                              #choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
+    output$UiCtrlsSampleSel <- renderUI({
+      ControlsList <- paste("Control", 1:input$InNumCtrl)
+      Ls <- list()
+      for (i in 1:length(ControlsList)){
+        Ls[[i]] <- selectInput(inputId = paste0("InCtrlSample", i),
+                              label = ControlsList[i],
                               choices = names(InitDf()$Files))
       }
-      v
+      Ls
     })
   })
   
-  # For controls ploidy
+  # Create controls ploidy
   observeEvent(input$InFiles, {
     req(InitDf())
-    
-    output$myboxes2 <- renderUI({
-      BoxesList <- paste("Ploidy", 1:input$InCtrl)
-      v <- list()
-      for (i in 1:length(BoxesList)){
-        v[[i]] <- numericInput(inputId = paste0("CtrlPlo", i),
-                               label = BoxesList[i],
+    output$UiCtrlsPloNum <- renderUI({
+      PloidyList <- paste("Ploidy", 1:input$InNumCtrl)
+      Ls <- list()
+      for (i in 1:length(PloidyList)){
+        Ls[[i]] <- numericInput(inputId = paste0("InCtrlPlo", i),
+                               label = PloidyList[i],
                                value = 3,
                                min = 1,
-                               #max = 5,
                                step = 1)
       }
-      v
+      Ls
     })
   })
-  
-  
-  # Update
-  #  observeEvent(input$InFiles, {
-  #    req(InitDf())
-  #    # Displays file names
-  #    output$CtrlSel <- renderUI({
-  #      numericInput(inputId = "InCtrl",
-  #                   label = "Number of controls",
-  #                   value = 5,
-  #                   #value = ifelse(length(input$InFiles) < 5, length(input$InFiles), 5),
-  #                   #value = ifelse(length(input$InFiles[, 1]) < 5, length(input$InFiles[, 1]), 5),
-  #                   min = 1,
-  #                   step = 1)
-  #    })
-  #  })
-  
-  # Define specific functions
+
+  # Define specific functions for peaks calculation
   # Lines
   GetLine <- function(File, ChanNum, Span){
     # Extract and filter expressions
@@ -317,7 +305,6 @@ server <- function(input, output, session) {
     data.frame(MaxIndex = MaxIndex, Intensity = Intensity)
   }
   
-  
   # Create reactive values
   # Get initial files and information
   # Read FCS files and calculate initial information
@@ -335,7 +322,6 @@ server <- function(input, output, session) {
     
     for(i in 1:length(input$InFiles[, 1])){
       FilesLs[[i]] <- read.FCS(input$InFiles[[i, 'datapath']], emptyValue = FALSE, alter.names = TRUE)
-      #Name <- sub(" .*", " ", input$InFiles$name[i])
       Name <- sub(" .*", "", input$InFiles$name[i])
       Names <- c(Names, Name)
       Channels[i] <- names(FilesLs[[i]])[20]
@@ -353,8 +339,9 @@ server <- function(input, output, session) {
   })
 
   # Create parameter and results data frame to modify initially calculated data
-  Df <- reactiveValues(data = NULL)
   # In this case, it had to be created and reactive value in order to be modified via proxy
+  Df <- reactiveValues(data = NULL)
+  
   observeEvent(input$InFiles, {
     req(InitDf())
     Df$data <- data.frame(Sample = names(InitDf()$Files),
@@ -364,14 +351,14 @@ server <- function(input, output, session) {
                           G1 = InitDf()$G1s,
                           G2 = InitDf()$G2s)
     
-    output$ResDf <- DT::renderDataTable(isolate(Df$data),
+    output$ResDf1 <- DT::renderDataTable(isolate(Df$data),
                                         editable = FALSE)
   })
   
   #Df3 <- reactiveValues(data = NULL)
   # observe more things? correct things?
   # init Df2 that updates with df?
-  #observeEvent(c(input$InFiles, input$InBox, input$InCtrl), {
+  #observeEvent(c(input$InFiles, input$InPeaksPlot, input$InNumCtrl), {
   #  req(InitDf())
     #Df$data2 <- Df$data
     
@@ -385,7 +372,7 @@ server <- function(input, output, session) {
   #                value = "Intensity",
   #                -Sample)
     # Add ploidy
-  #  Df$data2$Ploidy <- NA#input$InCtrl
+  #  Df$data2$Ploidy <- NA#input$InNumCtrl
     
     # Order alphabetically
   #  Df$data2 <- Df$data2[order(Df$data2$Sample),]
@@ -395,15 +382,15 @@ server <- function(input, output, session) {
   
   # Try to select dataframe per sample
   #observeEvent(input$CtrlPlo, {
-  # What to observe InCtrl
-  #MyThingsToObs <- "casa"#paste0("input$slider", 1:input$InCtrl)
+  # What to observe InNumCtrl
+  #MyThingsToObs <- "casa"#paste0("input$InCtrlSample", 1:input$InNumCtrl)
   
-  #observeEvent(c(input$InFiles, input$slider1), {
+  #observeEvent(c(input$InFiles, input$InCtrlSample1), {
   
   
   observeEvent(input$InReg, {
-  #observeEvent(eval(parse(text = paste("c(", paste0("input$slider", 1:input$InCtrl, collapse = ", "), ")"))), {
-    req(input$slider1)
+  #observeEvent(eval(parse(text = paste("c(", paste0("input$InCtrlSample", 1:input$InNumCtrl, collapse = ", "), ")"))), {
+    req(input$InCtrlSample1)
     
     # Select required information from Df
     Df$data2 <- Df$data[,c(1,5,6)]
@@ -417,7 +404,7 @@ server <- function(input, output, session) {
     # Order alphabetically
     Df$data2 <- Df$data2[order(Df$data2$Sample),]
     # Rename rownames 
-    #rownames(Df$data2) <- 1:(input$InCtrl * 2)
+    #rownames(Df$data2) <- 1:(input$InNumCtrl * 2)
     
     
     
@@ -426,15 +413,15 @@ server <- function(input, output, session) {
     #for (Slider in Sliders){
     #  Pattern <- input$Slider
     #}
-    #paste0("input$slider", 1:input$InCtrl)
+    #paste0("input$slider", 1:input$InNumCtrl)
     #input$slider1
     #Pattern <- paste(names(input)[grep("slider", names(input))], sep = "|")
     #Pattern
     # Change to sliders name?
-    Sliders <- paste0("input$slider", 1:input$InCtrl)
+    CtrlSamples <- paste0("input$InCtrlSample", 1:input$InNumCtrl)
     #eval(parse(text = Sliders))
-    for (Slider in Sliders){
-      Pattern <- c(Pattern, eval(parse(text = Slider)))
+    for (Sample in CtrlSamples){
+      Pattern <- c(Pattern, eval(parse(text = Sample)))
     }
     
     Pattern2 <- Pattern
@@ -457,7 +444,7 @@ server <- function(input, output, session) {
     
    
     
-    Ploidies <- paste0("input$CtrlPlo", 1:input$InCtrl)
+    Ploidies <- paste0("input$InCtrlPlo", 1:input$InNumCtrl)
     
     AllPloidies <- NULL
     
@@ -472,7 +459,7 @@ server <- function(input, output, session) {
     
     AllPloidies <- AllPloidies[Idx]
     
-    AllPloidies <- rep(AllPloidies, each = 2) * 1:2#NA#input$InCtrl
+    AllPloidies <- rep(AllPloidies, each = 2) * 1:2#NA#input$InNumCtrl
     
     
     
@@ -503,7 +490,7 @@ server <- function(input, output, session) {
     rownames(Df$Res) <- 1:nrow(Df$Res)
     
     # Final output data frame
-    output$ResDf3 <- DT::renderDataTable(isolate(Df$Res),
+    output$ResDf2 <- DT::renderDataTable(isolate(Df$Res),
                                          editable = FALSE)
     
     output$RegPlot <- renderPlot({
@@ -537,7 +524,7 @@ server <- function(input, output, session) {
   })
   
   # Create plot points
-  PlotPoints <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan, input$MaxPeaks), {
+  PlotPoints <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan, input$InMaxPeaks), {
     req(InitDf())
     # Get sample name
     SampNum <- grep(input$InSample, names(InitDf()$Files))
@@ -553,21 +540,21 @@ server <- function(input, output, session) {
     req(InitDf())
     req(input$InSample)
     req(PlotLine())
-    req(input$MaxPeaks)
-    req(input$InBox)
+    req(input$InMaxPeaks)
+    req(input$InPeaksPlot)
     
     SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Get name for plotting and table
     #Name <- names(InitDf()$Files)
     Name <- names(InitDf()$Files)[SampNum]
     # Number of labels
-    LabNum <- match(input$InBox, PlotPoints()$MaxIndex)
+    LabNum <- match(input$InPeaksPlot, PlotPoints()$MaxIndex)
     Labs <- c("G1", "G2", "G3", "G4", "G5")
     # Plot histogram with points
     ggplot(PlotLine(), aes(x = Fluorescence, y = Freq)) +
       geom_line() +
-      annotate("point", x = PlotPoints()$MaxIndex[1:input$MaxPeaks],
-               y = PlotPoints()$Intensity[1:input$MaxPeaks],
+      annotate("point", x = PlotPoints()$MaxIndex[1:input$InMaxPeaks],
+               y = PlotPoints()$Intensity[1:input$InMaxPeaks],
                col = "red") +
       annotate("text", x = PlotPoints()$MaxIndex[LabNum],
                y = PlotPoints()$Intensity[LabNum] + 10,
@@ -583,7 +570,7 @@ server <- function(input, output, session) {
     # Update smooth
     Df$data[SampNum, 2] <- input$InChan
     # Replace data
-    Proxy <- DT::dataTableProxy('ResDf')
+    Proxy <- DT::dataTableProxy('ResDf1')
     DT::replaceData(Proxy, Df$data)
   })
   # Smoothing
@@ -592,7 +579,7 @@ server <- function(input, output, session) {
     # Update smooth
     Df$data[SampNum, 3] <- input$InSmooth
     # Replace data
-    Proxy <- DT::dataTableProxy('ResDf')
+    Proxy <- DT::dataTableProxy('ResDf1')
     DT::replaceData(Proxy, Df$data)
   })
   # Window
@@ -601,41 +588,34 @@ server <- function(input, output, session) {
     # Update window
     Df$data[SampNum, 4] <- input$InWindow
     # Replace data
-    Proxy <- DT::dataTableProxy('ResDf')
+    Proxy <- DT::dataTableProxy('ResDf1')
     DT::replaceData(Proxy, Df$data)
   })
   # Peaks
-  observeEvent(input$InBox, {
+  observeEvent(input$InPeaksPlot, {
     SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Update G1 and G2 peaks
-    Df$data[SampNum, 5] <- input$InBox[1]
-    Df$data[SampNum, 6] <- input$InBox[2]
+    Df$data[SampNum, 5] <- input$InPeaksPlot[1]
+    Df$data[SampNum, 6] <- input$InPeaksPlot[2]
     # Replace data
-    Proxy <- DT::dataTableProxy('ResDf')
+    Proxy <- DT::dataTableProxy('ResDf1')
     DT::replaceData(Proxy, Df$data)
   })
   # Controls ploidy
-  observeEvent(input$CtrlPlo1, {
+  # is this working?
+  observeEvent(input$InCtrlPlo1, {
 #    req(Df2)
-#    Df2$Ploidy <- input$InCtrl
+#    Df2$Ploidy <- input$InNumCtrl
     #SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Update smooth
-    Df$data2$Ploidy <- input$CtrlPlo1
+    Df$data2$Ploidy <- input$InCtrlPlo1
     # Replace data
-    Proxy <- DT::dataTableProxy('ResDf3')
+    Proxy <- DT::dataTableProxy('ResDf2')
     DT::replaceData(Proxy, Df$data2)
   })
   
   
-  # Download CSV
-  output$DownloadData <- downloadHandler(
-    filename <- function() {
-      "peaks.csv"
-    },
-    content <- function(file) {
-      write.csv(Df$data, file, row.names = FALSE)
-    }
-  )
+  
 }
 
 # Create Shiny object
