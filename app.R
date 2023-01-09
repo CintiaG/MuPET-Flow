@@ -82,6 +82,17 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       DT::dataTableOutput("ResDf2"),
                                     ),
                            ),
+                           # Panel 4
+                           tabPanel("Summary",
+                                    sidebarPanel(
+                                      h3("Inputs?"),
+                                      # Obtain summary
+                                      actionButton(inputId = "InSum", label = "Summary"),
+                                    ),
+                                    mainPanel(
+                                      DT::dataTableOutput("ResDf3"),
+                                    ),
+                           ),
                            # Panel 3
                            tabPanel("Help",
                                     "In construction..."
@@ -489,8 +500,6 @@ server <- function(input, output, session) {
     AllPloidies <- rep(AllPloidies, each = 2) * 1:2
     # Add ploidy
     Df$Ctrls$Ploidy <- AllPloidies
-    # Add rounded ploidy (in this case, it is the same)
-    Df$Ctrls$Rounded <- AllPloidies
     # Linear model
     Mod <- lm(Ploidy ~ Intensity, data = Df$Ctrls)
     
@@ -500,14 +509,12 @@ server <- function(input, output, session) {
     
     # Perform prediction
     Df$Tests$Ploidy <- predict(Mod, Df$Tests) %>% round(2)
-    # Add rounded ploidy
-    Df$Tests$Rounded <- round(Df$Tests$Ploidy, 0)
     # Combine results
     Df$Res <- rbind(Df$Ctrls, Df$Tests)
     
     # Before rendering data frame, change row names and column order
     rownames(Df$Res) <- 1:nrow(Df$Res)
-    Df$Res <- Df$Res[,c(1, 4, 2, 3, 5, 6)]
+    Df$Res <- Df$Res[,c(1, 4, 2, 3, 5)]
     # Final output data frame
     output$ResDf2 <- DT::renderDataTable(isolate(Df$Res),
                                          editable = FALSE)
@@ -518,6 +525,27 @@ server <- function(input, output, session) {
         geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "black") +
         geom_text_repel(label = paste(Df$Res$Sample, Df$Res$Phase))
     })
+  })
+  
+  # Summary
+  observeEvent(input$InSum, {
+    # Copy regression results data frame
+    Df$Sum <-Df$Res
+    # Remove intensity to compare ploidies of different phases
+    Df$Sum <- Df$Sum[,-4]
+    # Spread data
+    Df$Sum <- spread(Df$Sum,
+                     key = "Phase",
+                     value = "Ploidy")
+    # Divide G2 by 2
+    Df$Sum$G2 <- round(Df$Sum$G2 / 2, 2)
+    # Obtain mean of G1 and G2
+    Df$Sum <- mutate(Df$Sum, Mean = round(rowMeans(select(Df$Sum, G1, G2), na.rm = TRUE), 2))
+    # Obtain rounded ploidy
+    Df$Sum$Rounded <- round(Df$Sum$Mean, 0)
+    # Final output data frame
+    output$ResDf3 <- DT::renderDataTable(isolate(Df$Sum),
+                                         editable = FALSE)
   })
 }
 
@@ -533,3 +561,4 @@ shinyApp(ui = ui, server = server)
 # Obtain average of both peaks and give a final result?
 # Help section
 # Dowload final data perhaps only and not the peaks?
+# It forgets the last seletec peaks
