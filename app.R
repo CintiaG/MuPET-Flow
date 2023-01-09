@@ -37,8 +37,6 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       uiOutput("UiPeaksNum"),
                                       # Select calculated peaks to plot
                                       uiOutput("UiPeaksBox"),
-                                      # Download data
-                                      downloadButton("DownloadData", "Download"),
                                     ),
                                     # Panel 1 outputs
                                     mainPanel(
@@ -88,8 +86,11 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       h3("Inputs?"),
                                       # Obtain summary
                                       actionButton(inputId = "InSum", label = "Summary"),
+                                      # Download data
+                                      downloadButton("DownloadData", "Download"),
                                     ),
                                     mainPanel(
+                                      plotOutput("HisPlotAll"),
                                       DT::dataTableOutput("ResDf3"),
                                     ),
                            ),
@@ -169,7 +170,7 @@ server <- function(input, output, session) {
       "peaks.csv"
     },
     content <- function(file) {
-      write.csv(Df$DataPeaks, file, row.names = FALSE)
+      write.csv(Df$Sum, file, row.names = FALSE)
     }
   )
   
@@ -529,6 +530,38 @@ server <- function(input, output, session) {
   
   # Summary
   observeEvent(input$InSum, {
+    # Plot
+    output$HisPlotAll <- renderPlot({
+      req(input$InFiles)
+      req(InitDf())
+      req(input$InSample)
+      req(PlotLine())
+      req(input$InMaxPeaks)
+      req(input$InPeaksPlot)
+      
+      SampNum <- grep(input$InSample, names(InitDf()$Files))
+      # Get name for plotting and table
+      Name <- names(InitDf()$Files)[SampNum]
+      # Number of labels
+      LabNum <- match(input$InPeaksPlot, PlotPoints()$MaxIndex)
+      # Labels
+      Labs <- paste0("G", 1:length(PlotPoints()$MaxIndex))
+      # Plot histogram with points
+      ggplot(PlotLine(), aes(x = Fluorescence, y = Freq)) +
+        geom_line() +
+        annotate("point", x = PlotPoints()$MaxIndex[1:input$InMaxPeaks],
+                 y = PlotPoints()$Intensity[1:input$InMaxPeaks],
+                 col = "red") +
+        annotate("text", x = PlotPoints()$MaxIndex[LabNum],
+                 y = PlotPoints()$Intensity[LabNum] + 10,
+                 col = "black",
+                 label = Labs[1:length(LabNum)]) +
+        labs(title = Name) +
+        theme(plot.title = element_text(hjust = 0.5))
+    })
+    
+    
+    
     # Copy regression results data frame
     Df$Sum <-Df$Res
     # Remove intensity to compare ploidies of different phases
@@ -543,6 +576,11 @@ server <- function(input, output, session) {
     Df$Sum <- mutate(Df$Sum, Mean = round(rowMeans(select(Df$Sum, G1, G2), na.rm = TRUE), 2))
     # Obtain rounded ploidy
     Df$Sum$Rounded <- round(Df$Sum$Mean, 0)
+    # Rename phase G1 and G2 in the second data 
+    colnames(Df$Sum)[3] <- "Ploidy G1"
+    colnames(Df$Sum)[4] <- "Ploidy G2"
+    # Combine with histograms panel data frame
+    Df$Sum <- left_join(Df$DataPeaks, Df$Sum)
     # Final output data frame
     output$ResDf3 <- DT::renderDataTable(isolate(Df$Sum),
                                          editable = FALSE)
