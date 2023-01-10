@@ -13,6 +13,7 @@ library(ggplot2)
 library(DT)
 library(tidyverse)
 library(ggrepel)
+library(gridExtra)
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
@@ -534,6 +535,7 @@ server <- function(input, output, session) {
   
   # Summary
   observeEvent(input$InSum, {
+    req(InitDf())
     # Plot
     output$HisPlotAll <- renderPlot({
       # Test if these are necessary
@@ -544,18 +546,52 @@ server <- function(input, output, session) {
       req(input$InMaxPeaks)
       req(input$InPeaksPlot)
       
-      # Create a mock loop
+      # Loop over the samples and create lines
       
-      Things <- c("hose", "door", "table")
+      PlotLs <- list()
       
-      Things_to_render <- NULL
-      
-      for (Element in Things){
-        Things_to_render <- c(Things_to_render, Element)
+      for (i in 1:length(InitDf()$Files)){
+        # Create plot line
+        # Get file information
+        File <- InitDf()$Files[[i]]
+        # Get channels information
+        ChanNum <- grep(input$InChan, names(File))
+        # Return Line working data frame
+        LineWkDf <- GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[i, 3])
+        
+        # Create plot points
+        # Get width
+        Width <- Df$DataPeaks[i, 4]
+        # Return points
+        PointsWkDf <-  GetPoints(Width = Width, PlotLine = LineWkDf)
+        
+        # Plot SampNum <- grep(input$InSample, names(InitDf()$Files))
+        # Get name for plotting and table
+        Name <- names(InitDf()$Files)[i]
+        # Number of labels
+        LabNum <- match(input$InPeaksPlot,PointsWkDf$MaxIndex)
+        # Labels
+        Labs <- paste0("G", 1:length(PointsWkDf$MaxIndex))
+        # Plot histogram with points
+        Pl <- ggplot(LineWkDf, aes(x = Fluorescence, y = Freq)) +
+          geom_line() +
+          annotate("point", x = PointsWkDf$MaxIndex[1:input$InMaxPeaks],
+                   y = PointsWkDf$Intensity[1:input$InMaxPeaks],
+                   col = "red") +
+          annotate("text", x = PointsWkDf$MaxIndex[LabNum],
+                   y = PointsWkDf$Intensity[LabNum] + 10,
+                   col = "black",
+                   label = Labs[1:length(LabNum)]) +
+          labs(title = Name) +
+          theme(plot.title = element_text(hjust = 0.5))
+        # For testing
+        #PlotLs[[i]] <- names(InitDf()$Files)[i]
+        PlotLs[[i]] <- Pl
       }
       
       output$selected_var <- renderText({ 
-        Things_to_render
+        "text"
+        #length(InitDf()$Files)
       })
       
       # Create plot line
