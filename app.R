@@ -621,25 +621,28 @@ server <- function(input, output, session) {
       
       
       
-      SampNum <- grep(input$InSample, names(InitDf()$Files))
+      #SampNum <- grep(input$InSample, names(InitDf()$Files))
       # Get name for plotting and table
-      Name <- names(InitDf()$Files)[SampNum]
+      #Name <- names(InitDf()$Files)[SampNum]
       # Number of labels
-      LabNum <- match(input$InPeaksPlot, PlotPoints()$MaxIndex)
+      #LabNum <- match(input$InPeaksPlot, PlotPoints()$MaxIndex)
       # Labels
-      Labs <- paste0("G", 1:length(PlotPoints()$MaxIndex))
+      #Labs <- paste0("G", 1:length(PlotPoints()$MaxIndex))
       # Plot histogram with points
-      ggplot(PlotLine(), aes(x = Fluorescence, y = Freq)) +
-        geom_line() +
-        annotate("point", x = PlotPoints()$MaxIndex[1:input$InMaxPeaks],
-                 y = PlotPoints()$Intensity[1:input$InMaxPeaks],
-                 col = "red") +
-        annotate("text", x = PlotPoints()$MaxIndex[LabNum],
-                 y = PlotPoints()$Intensity[LabNum] + 10,
-                 col = "black",
-                 label = Labs[1:length(LabNum)]) +
-        labs(title = Name) +
-        theme(plot.title = element_text(hjust = 0.5))
+      #ggplot(PlotLine(), aes(x = Fluorescence, y = Freq)) +
+      #  geom_line() +
+      #  annotate("point", x = PlotPoints()$MaxIndex[1:input$InMaxPeaks],
+      #           y = PlotPoints()$Intensity[1:input$InMaxPeaks],
+      #           col = "red") +
+      #  annotate("text", x = PlotPoints()$MaxIndex[LabNum],
+      #           y = PlotPoints()$Intensity[LabNum] + 10,
+      #           col = "black",
+      #           label = Labs[1:length(LabNum)]) +
+      #  labs(title = Name) +
+      #  theme(plot.title = element_text(hjust = 0.5))
+      #ggarrange(PlotLs)
+      #PlotLs[[2]]
+      grid.arrange(grobs = PlotLs, ncol = 2)
     })
     
     
