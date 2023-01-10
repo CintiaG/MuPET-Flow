@@ -75,7 +75,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       # Regression plot
                                       h3("Regression"),
                                       plotOutput("RegPlot"),
-                                      #  Table results 2
+                                      # Table results 2
                                       h3("Estimated ploidy"),
                                       DT::dataTableOutput("ResDf2"),
                                     ),
@@ -90,7 +90,11 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       downloadButton("DownloadData", "Download"),
                                     ),
                                     mainPanel(
+                                      # Test test (remove)
+                                      textOutput("selected_var"),
+                                      # Histogram of all samples
                                       plotOutput("HisPlotAll"),
+                                      # Table results 3
                                       DT::dataTableOutput("ResDf3"),
                                     ),
                            ),
@@ -532,12 +536,54 @@ server <- function(input, output, session) {
   observeEvent(input$InSum, {
     # Plot
     output$HisPlotAll <- renderPlot({
+      # Test if these are necessary
       req(input$InFiles)
       req(InitDf())
       req(input$InSample)
       req(PlotLine())
       req(input$InMaxPeaks)
       req(input$InPeaksPlot)
+      
+      # Create a mock loop
+      
+      Things <- c("hose", "door", "table")
+      
+      Things_to_render <- NULL
+      
+      for (Element in Things){
+        Things_to_render <- c(Things_to_render, Element)
+      }
+      
+      output$selected_var <- renderText({ 
+        Things_to_render
+      })
+      
+      # Create plot line
+      #PlotLine <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan), {
+      #  req(InitDf())
+      #  # Get sample name
+      #  SampNum <- grep(input$InSample, names(InitDf()$Files))
+      #  # Get file information
+      #  File <- InitDf()$Files[[SampNum]]
+      #  # Get channels information
+      #  ChanNum <- grep(input$InChan, names(File))
+      #  # Return Line
+      #  GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[SampNum, 3])
+      #})
+      
+      # Create plot points
+      #PlotPoints <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan, input$InMaxPeaks), {
+      #  req(InitDf())
+      #  # Get sample name
+      #  SampNum <- grep(input$InSample, names(InitDf()$Files))
+      #  # Get width
+      #  Width <- Df$DataPeaks[SampNum, 4]
+      #  # Return points
+      #  GetPoints(Width = Width, PlotLine = PlotLine())
+      #})
+      
+      
+      
       
       SampNum <- grep(input$InSample, names(InitDf()$Files))
       # Get name for plotting and table
