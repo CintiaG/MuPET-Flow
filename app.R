@@ -564,19 +564,17 @@ server <- function(input, output, session) {
         Width <- Df$DataPeaks[i, 4]
         # Return points
         PointsWkDf <-  GetPoints(Width = Width, PlotLine = LineWkDf)
-        
-        # Plot SampNum <- grep(input$InSample, names(InitDf()$Files))
         # Get name for plotting and table
         Name <- names(InitDf()$Files)[i]
-        # Number of labels
-        LabNum <- match(input$InPeaksPlot,PointsWkDf$MaxIndex)
+        # Number of labels but only the peaks selected in Panel 1
+        LabNum <- match(Df$DataPeaks[i, c(5,6)], PointsWkDf$MaxIndex)
         # Labels
         Labs <- paste0("G", 1:length(PointsWkDf$MaxIndex))
         # Plot histogram with points
         Pl <- ggplot(LineWkDf, aes(x = Fluorescence, y = Freq)) +
           geom_line() +
-          annotate("point", x = PointsWkDf$MaxIndex[1:input$InMaxPeaks],
-                   y = PointsWkDf$Intensity[1:input$InMaxPeaks],
+          annotate("point", x = PointsWkDf$MaxIndex[LabNum],
+                   y = PointsWkDf$Intensity[LabNum],
                    col = "red") +
           annotate("text", x = PointsWkDf$MaxIndex[LabNum],
                    y = PointsWkDf$Intensity[LabNum] + 10,
@@ -584,13 +582,13 @@ server <- function(input, output, session) {
                    label = Labs[1:length(LabNum)]) +
           labs(title = Name) +
           theme(plot.title = element_text(hjust = 0.5))
-        # For testing
-        #PlotLs[[i]] <- names(InitDf()$Files)[i]
+        # Save plot in list
         PlotLs[[i]] <- Pl
       }
-      
+      # Remove after testing
       output$selected_var <- renderText({ 
-        "text"
+        #"text"
+        as.character(Df$DataPeaks[1, c(5,6)])
         #length(InitDf()$Files)
       })
       
