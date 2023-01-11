@@ -143,7 +143,7 @@ server <- function(input, output, session) {
   output$UiWindowNum <- renderUI({
     numericInput(inputId = "InWindow",
                  label = "Adjust window",
-                 value = 10,
+                 value = 50,
                  min = 1,
                  max = 100,
                  step = 1)
@@ -344,9 +344,9 @@ server <- function(input, output, session) {
       Names <- c(Names, Name)
       Channels[i] <- names(FilesLs[[i]])[20]
       Smoothings[i] <- 0.1
-      Windows[i] <- 10
+      Windows[i] <- 50
       LineLs[[i]] <- GetLine(File = FilesLs[[i]], ChanNum = 20, Span = 0.1)
-      PointLs[[i]] <- GetPoints(PlotLine = LineLs[[i]], Width = 10)
+      PointLs[[i]] <- GetPoints(PlotLine = LineLs[[i]], Width = 50)
       G1s[i] <- PointLs[[i]]$MaxIndex[1]
       G2s[i] <- PointLs[[i]]$MaxIndex[2]
     }
