@@ -83,21 +83,15 @@ ui <- fluidPage(theme = shinytheme("united"),
                            ),
                            # Panel 4
                            tabPanel("Summary",
-                                    sidebarPanel(
-                                      h3("Inputs?"),
                                       # Obtain summary
                                       actionButton(inputId = "InSum", label = "Summary"),
-                                      # Download data
-                                      downloadButton("DownloadData", "Download"),
-                                    ),
-                                    mainPanel(
-                                      # Test test (remove)
-                                      textOutput("selected_var"),
                                       # Histogram of all samples
-                                      plotOutput("HisPlotAll"),
-                                      # Table results 3
-                                      DT::dataTableOutput("ResDf3"),
-                                    ),
+                                    plotOutput("HisPlotAll"),
+                                    downloadButton("downloadPlot", "Save Plot"),
+                                    # Table results 3
+                                    DT::dataTableOutput("ResDf3"),
+                                    # Download data
+                                    downloadButton("DownloadData", "Download"),
                            ),
                            # Panel 3
                            tabPanel("Help",
@@ -235,6 +229,19 @@ server <- function(input, output, session) {
                    step = 1)
     })
   })
+  # Last selected peaks
+  observeEvent(input$InSample, {
+    req(InitDf())
+    SampNum <- grep(input$InSample, names(InitDf()$Files))
+    LabNum <- match(Df$DataPeaks[SampNum, c(5,6)], PlotPoints()$MaxIndex)
+    output$UiPeaksBox <- renderUI({
+      checkboxGroupInput(inputId = "InPeaksPlot",
+                         label = "Select G1 and G2 peaks",
+                         choices = PlotPoints()$MaxIndex,
+                         selected = PlotPoints()$MaxIndex[LabNum])
+    })
+  })
+  
   
   # Panel 2 inputs
   # Select number of controls
@@ -536,20 +543,11 @@ server <- function(input, output, session) {
   # Summary
   observeEvent(input$InSum, {
     req(InitDf())
-    # Plot
+    # Plot all histograms
     output$HisPlotAll <- renderPlot({
-      # Test if these are necessary
-      req(input$InFiles)
-      req(InitDf())
-      req(input$InSample)
-      req(PlotLine())
-      req(input$InMaxPeaks)
-      req(input$InPeaksPlot)
-      
-      # Loop over the samples and create lines
-      
+      # Create empty list to store plots
       PlotLs <- list()
-      
+      # Loop over the samples and create lines
       for (i in 1:length(InitDf()$Files)){
         # Create plot line
         # Get file information
@@ -558,7 +556,6 @@ server <- function(input, output, session) {
         ChanNum <- grep(input$InChan, names(File))
         # Return Line working data frame
         LineWkDf <- GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[i, 3])
-        
         # Create plot points
         # Get width
         Width <- Df$DataPeaks[i, 4]
@@ -585,65 +582,19 @@ server <- function(input, output, session) {
         # Save plot in list
         PlotLs[[i]] <- Pl
       }
-      # Remove after testing
-      output$selected_var <- renderText({ 
-        #"text"
-        as.character(Df$DataPeaks[1, c(5,6)])
-        #length(InitDf()$Files)
-      })
       
-      # Create plot line
-      #PlotLine <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan), {
-      #  req(InitDf())
-      #  # Get sample name
-      #  SampNum <- grep(input$InSample, names(InitDf()$Files))
-      #  # Get file information
-      #  File <- InitDf()$Files[[SampNum]]
-      #  # Get channels information
-      #  ChanNum <- grep(input$InChan, names(File))
-      #  # Return Line
-      #  GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[SampNum, 3])
-      #})
+      AllPl <- grid.arrange(grobs = PlotLs, ncol = 2)
       
-      # Create plot points
-      #PlotPoints <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan, input$InMaxPeaks), {
-      #  req(InitDf())
-      #  # Get sample name
-      #  SampNum <- grep(input$InSample, names(InitDf()$Files))
-      #  # Get width
-      #  Width <- Df$DataPeaks[SampNum, 4]
-      #  # Return points
-      #  GetPoints(Width = Width, PlotLine = PlotLine())
-      #})
-      
-      
-      
-      
-      #SampNum <- grep(input$InSample, names(InitDf()$Files))
-      # Get name for plotting and table
-      #Name <- names(InitDf()$Files)[SampNum]
-      # Number of labels
-      #LabNum <- match(input$InPeaksPlot, PlotPoints()$MaxIndex)
-      # Labels
-      #Labs <- paste0("G", 1:length(PlotPoints()$MaxIndex))
-      # Plot histogram with points
-      #ggplot(PlotLine(), aes(x = Fluorescence, y = Freq)) +
-      #  geom_line() +
-      #  annotate("point", x = PlotPoints()$MaxIndex[1:input$InMaxPeaks],
-      #           y = PlotPoints()$Intensity[1:input$InMaxPeaks],
-      #           col = "red") +
-      #  annotate("text", x = PlotPoints()$MaxIndex[LabNum],
-      #           y = PlotPoints()$Intensity[LabNum] + 10,
-      #           col = "black",
-      #           label = Labs[1:length(LabNum)]) +
-      #  labs(title = Name) +
-      #  theme(plot.title = element_text(hjust = 0.5))
-      #ggarrange(PlotLs)
-      #PlotLs[[2]]
-      grid.arrange(grobs = PlotLs, ncol = 2)
+      # Download figure
+      output$downloadPlot <- downloadHandler(
+        filename <- function() { paste(input$dataset, '.png', sep='') },
+        content <- function(file) {
+          ggsave(file, plot = AllPl, device = "png")
+        }
+      )
+      # Return all plots
+      AllPl
     })
-    
-    
     
     # Copy regression results data frame
     Df$Sum <-Df$Res
@@ -659,11 +610,19 @@ server <- function(input, output, session) {
     Df$Sum <- mutate(Df$Sum, Mean = round(rowMeans(select(Df$Sum, G1, G2), na.rm = TRUE), 2))
     # Obtain rounded ploidy
     Df$Sum$Rounded <- round(Df$Sum$Mean, 0)
-    # Rename phase G1 and G2 in the second data 
+    # Rename phase G1 and G2 in the second data frame
     colnames(Df$Sum)[3] <- "Ploidy G1"
     colnames(Df$Sum)[4] <- "Ploidy G2"
     # Combine with histograms panel data frame
     Df$Sum <- left_join(Df$DataPeaks, Df$Sum)
+    # Convert intesnity to numeric
+    Df$Sum$G1 <- as.numeric(Df$Sum$G1)
+    Df$Sum$G2 <- as.numeric(Df$Sum$G2)
+    # Rename phase G1 and G2 in the summary data frame
+    colnames(Df$Sum)[5] <- "Intensity G1"
+    colnames(Df$Sum)[6] <- "Intensity G2"
+    # Rearrange data frame order
+    Df$Sum <- Df$Sum[,c(1,7,2:6,8:11)]
     # Final output data frame
     output$ResDf3 <- DT::renderDataTable(isolate(Df$Sum),
                                          editable = FALSE)
@@ -682,4 +641,5 @@ shinyApp(ui = ui, server = server)
 # Obtain average of both peaks and give a final result?
 # Help section
 # Dowload final data perhaps only and not the peaks?
-# It forgets the last seletec peaks
+# Is it useful the maximun number of peaks? it is not connected to the box...
+# Control grid of all plots
