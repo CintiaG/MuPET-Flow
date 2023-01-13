@@ -92,7 +92,22 @@ ui <- fluidPage(theme = shinytheme("united"),
                                         
                                       ),
                                       fluidRow(
-                                        downloadButton("downloadPlot", "Save Plot"),
+                                        div(style = "display: inline-block;vertical-align:top; width: 150px;",
+                                            # Change variable name
+                                            downloadButton("downloadPlot", "Save Plot")
+                                        ),
+                                        # Separator
+                                        div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
+                                        div(style = "display: inline-block;vertical-align:top; width: 150px;",
+                                            # Change grid columns
+                                            uiOutput("UiGridNum"),
+                                        ),
+                                        # Separator
+                                        div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
+                                        div(style = "display: inline-block;vertical-align:top; width: 150px;",
+                                            # Change device type
+                                            uiOutput("UiDevNum"),
+                                        ),
                                       ),
                                       HTML("</br>"),
                                       fluidRow(
@@ -156,8 +171,8 @@ server <- function(input, output, session) {
                  label = "Adjust window",
                  value = 50,
                  min = 1,
-                 max = 100,
-                 step = 1)
+                 max = 1000,
+                 step = 10)
   })
   # Select maximum number of peaks
   output$UiPeaksNum <- renderUI({
@@ -174,16 +189,8 @@ server <- function(input, output, session) {
                        choices = PlotPoints()$MaxIndex,
                        selected = c(PlotPoints()$MaxIndex[1], PlotPoints()$MaxIndex[2]))
   })
-  # Download data
-  output$DownloadData <- downloadHandler(
-    filename <- function() {
-      "peaks.csv"
-    },
-    content <- function(file) {
-      write.csv(Df$Sum, file, row.names = FALSE)
-    }
-  )
   
+
   # Update UI when when files are uploaded
   observeEvent(input$InFiles, {
     req(InitDf())
@@ -236,8 +243,8 @@ server <- function(input, output, session) {
                    label = "Adjust window",
                    value = Df$DataPeaks$Window[SampNum],
                    min = 1,
-                   max = 100,
-                   step = 1)
+                   max = 1000,
+                   step = 10)
     })
   })
   # Last selected peaks
@@ -252,7 +259,6 @@ server <- function(input, output, session) {
                          selected = PlotPoints()$MaxIndex[LabNum])
     })
   })
-  
   
   # Panel 2 inputs
   # Select number of controls
@@ -294,6 +300,33 @@ server <- function(input, output, session) {
       }
       Ls
     })
+  })
+  
+  # Panel 3 inputs
+  # Download data
+  output$DownloadData <- downloadHandler(
+    filename <- function() {
+      "peaks.csv"
+    },
+    content <- function(file) {
+      write.csv(Df$Sum, file, row.names = FALSE)
+    }
+  )
+  # Number of column in grid
+  output$UiGridNum <- renderUI({
+    numericInput(inputId = "InGrid",
+                 label = "Number of colunms",
+                 value = 4,
+                 min = 1,
+                 step = 1)
+  })
+  
+  # Type of device
+  output$UiDevNum <- renderUI({
+    selectInput(inputId = "InDevice",
+                label = "Type of file",
+                choices = c("png", "tiff"),
+                selected = "png")
   })
 
   # Define specific functions for peaks calculation
@@ -498,9 +531,9 @@ server <- function(input, output, session) {
       # Evaluate each string to obtain the input stored value
       Pattern <- c(Pattern, eval(parse(text = Sample)))
     }
-    # Create pattern to serach samples
+    # Create pattern to search samples
     PatternSearch <- paste(Pattern, collapse = "|")
-    # Seprate controls and test data frames
+    # Separate controls and test data frames
     Df$Ctrls <- Df$DataReg[grep(PatternSearch, Df$DataReg$Sample),]
     Df$Tests <- Df$DataReg[-grep(PatternSearch, Df$DataReg$Sample),]
     # Add test and control type information
@@ -594,14 +627,15 @@ server <- function(input, output, session) {
         # Save plot in list
         PlotLs[[i]] <- Pl
       }
-      
-      AllPl <- grid.arrange(grobs = PlotLs, ncol = 4)
-      
+      # Compile and arrange plots
+      AllPl <- grid.arrange(grobs = PlotLs, ncol = input$InGrid)
       # Download figure
       output$downloadPlot <- downloadHandler(
-        filename <- function() { paste(input$dataset, '.png', sep='') },
+        filename <- function() {
+          paste("all_histograms", input$InDevice, sep = ".")
+          },
         content <- function(file) {
-          ggsave(file, plot = AllPl, device = "png")
+          ggsave(file, plot = AllPl, device = input$InDevice)
         }
       )
       # Return all plots
