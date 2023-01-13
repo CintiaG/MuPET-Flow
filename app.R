@@ -83,15 +83,26 @@ ui <- fluidPage(theme = shinytheme("united"),
                            ),
                            # Panel 4
                            tabPanel("Summary",
+                                    fluidPage(
                                       # Obtain summary
-                                      actionButton(inputId = "InSum", label = "Summary"),
-                                      # Histogram of all samples
-                                    plotOutput("HisPlotAll"),
-                                    downloadButton("downloadPlot", "Save Plot"),
-                                    # Table results 3
-                                    DT::dataTableOutput("ResDf3"),
-                                    # Download data
-                                    downloadButton("DownloadData", "Download"),
+                                      fluidRow(
+                                        actionButton(inputId = "InSum", label = "Summary"),
+                                        # Histogram of all samples
+                                        plotOutput("HisPlotAll"),
+                                        
+                                      ),
+                                      fluidRow(
+                                        downloadButton("downloadPlot", "Save Plot"),
+                                      ),
+                                      HTML("</br>"),
+                                      fluidRow(
+                                        # Table results 3
+                                        DT::dataTableOutput("ResDf3"),
+                                        # Download data
+                                        downloadButton("DownloadData", "Download"),
+                                      ),
+                                    )
+                                    
                            ),
                            # Panel 3
                            tabPanel("Help",
@@ -543,6 +554,7 @@ server <- function(input, output, session) {
   # Summary
   observeEvent(input$InSum, {
     req(InitDf())
+    req(Df$Res)
     # Plot all histograms
     output$HisPlotAll <- renderPlot({
       # Create empty list to store plots
@@ -583,7 +595,7 @@ server <- function(input, output, session) {
         PlotLs[[i]] <- Pl
       }
       
-      AllPl <- grid.arrange(grobs = PlotLs, ncol = 2)
+      AllPl <- grid.arrange(grobs = PlotLs, ncol = 4)
       
       # Download figure
       output$downloadPlot <- downloadHandler(
@@ -615,7 +627,7 @@ server <- function(input, output, session) {
     colnames(Df$Sum)[4] <- "Ploidy G2"
     # Combine with histograms panel data frame
     Df$Sum <- left_join(Df$DataPeaks, Df$Sum)
-    # Convert intesnity to numeric
+    # Convert intensity to numeric
     Df$Sum$G1 <- as.numeric(Df$Sum$G1)
     Df$Sum$G2 <- as.numeric(Df$Sum$G2)
     # Rename phase G1 and G2 in the summary data frame
@@ -643,3 +655,5 @@ shinyApp(ui = ui, server = server)
 # Dowload final data perhaps only and not the peaks?
 # Is it useful the maximun number of peaks? it is not connected to the box...
 # Control grid of all plots
+# When one of the controls is empty it does not do it well
+# Dowload and save buttons are executed
