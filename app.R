@@ -81,7 +81,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       DT::dataTableOutput("ResDf2"),
                                     ),
                            ),
-                           # Panel 4
+                           # Panel 3
                            tabPanel("Summary",
                                     fluidPage(
                                       # Obtain summary
@@ -92,22 +92,41 @@ ui <- fluidPage(theme = shinytheme("united"),
                                         
                                       ),
                                       fluidRow(
+                                        # HTML instructions for proper display
                                         div(style = "display: inline-block;vertical-align:top; width: 150px;",
                                             # Change variable name
                                             downloadButton("downloadPlot", "Save Plot")
                                         ),
                                         # Separator
                                         div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
+                                        # Ploidy level box (Change variable name)
                                         div(style = "display: inline-block;vertical-align:top; width: 150px;",
-                                            # Change grid columns
-                                            uiOutput("UiGridNum"),
+                                            uiOutput("UiDevSel")
                                         ),
                                         # Separator
                                         div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
-                                        div(style = "display: inline-block;vertical-align:top; width: 150px;",
+                                        uiOutput("UiPlotParamNum", inline = TRUE),
+                                        
+                                        
+                                        #div(style = "display: inline-block;vertical-align:top; width: 150px;",
+                                            # Change variable name
+                                            
+                                        #),
+                                        
+                                        #div(style = "display: inline-block;vertical-align:top; width: 150px;",
+                                            # Change grid columns
+                                        #    uiOutput("UiGridNum"),
+                                        #),
+                                        # Separator
+                                        #div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
+                                        #div(style = "display: inline-block;vertical-align:top; width: 150px;",
                                             # Change device type
-                                            uiOutput("UiDevNum"),
-                                        ),
+                                            
+                                        # Separator
+                                        #div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
+                                            
+                                        #),
+                                        
                                       ),
                                       HTML("</br>"),
                                       fluidRow(
@@ -312,21 +331,31 @@ server <- function(input, output, session) {
       write.csv(Df$Sum, file, row.names = FALSE)
     }
   )
-  # Number of column in grid
-  output$UiGridNum <- renderUI({
-    numericInput(inputId = "InGrid",
-                 label = "Number of colunms",
-                 value = 4,
-                 min = 1,
-                 step = 1)
-  })
   
   # Type of device
-  output$UiDevNum <- renderUI({
+  output$UiDevSel <- renderUI({
     selectInput(inputId = "InDevice",
                 label = "Type of file",
                 choices = c("png", "tiff"),
                 selected = "png")
+  })
+  # Create numeric inputs for plot saving
+  
+  output$UiPlotParamNum <- renderUI({
+    PlotParamList <- c("Grid", "Width", "Height", "Res")
+    PlotParamVal <- c(4, 300, 200, 300)
+    PlotParamStep <- c(1, 50, 50, 50)
+    Ls <- list()
+    for (i in 1:length(PlotParamList)){
+      Ls[[i]] <- div(
+        numericInput(inputId = paste0("In", PlotParamList[i]),
+                     label = PlotParamList[i],
+                     value = PlotParamVal[i],
+                     step = PlotParamStep[i]),
+        style = "display: inline-block;vertical-align:top; width: 150px;",
+      )
+    }
+    Ls
   })
 
   # Define specific functions for peaks calculation
@@ -635,7 +664,7 @@ server <- function(input, output, session) {
           paste("all_histograms", input$InDevice, sep = ".")
           },
         content <- function(file) {
-          ggsave(file, plot = AllPl, device = input$InDevice)
+          ggsave(file, plot = AllPl, device = input$InDevice)#, width = input$InWidth, height = input$InHeight, res = input$InRes)
         }
       )
       # Return all plots
