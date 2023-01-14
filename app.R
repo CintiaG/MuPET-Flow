@@ -85,23 +85,18 @@ ui <- fluidPage(theme = shinytheme("united"),
                            tabPanel("Summary",
                                     # Panel 3 inputs
                                     fluidPage(
-                                      # Obtain summary
                                       fluidRow(
+                                        # Obtain summary
                                         actionButton(inputId = "InSum", label = "Summary"),
                                         # Histogram of all samples
                                         plotOutput("HisPlotAll"),
                                       ),
+                                      HTML("</br>"),
                                       fluidRow(
-                                        # HTML instructions for proper display
-                                        #div(style = "display: inline-block;vertical-align:top; width: 150px;",
-                                        # Change variable name
-                                        column(1, downloadButton("downloadPlot", "Save Plot")),
-                                        #),
-                                        # Separator
-                                        column(1, div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>"))),
-                                        # 
-                                        #div(style = "display: inline-block;vertical-align:top; width: 150px;",
+                                        # Display plot parameters
                                         uiOutput("UiPlotParam"),
+                                        # Download plot
+                                        downloadButton("downloadPlot", "Save Plot"),
                                       ),
                                       HTML("</br>"),
                                       fluidRow(
@@ -265,8 +260,8 @@ server <- function(input, output, session) {
   })
   # Create select controls
   observeEvent(input$InFiles, {
-    req(InitDf())
     output$UiCtrlsSampleSel <- renderUI({
+      req(input$InNumCtrl)
       ControlsList <- paste("Control", 1:input$InNumCtrl)
       Ls <- list()
       for (i in 1:length(ControlsList)){
@@ -281,8 +276,8 @@ server <- function(input, output, session) {
   
   # Create controls ploidy
   observeEvent(input$InFiles, {
-    req(InitDf())
     output$UiCtrlsPloNum <- renderUI({
+      req(input$InNumCtrl)
       PloidyList <- paste("Ploidy", 1:input$InNumCtrl)
       Ls <- list()
       for (i in 1:length(PloidyList)){
@@ -310,7 +305,7 @@ server <- function(input, output, session) {
   # Create selection inputs for plot saving
   output$UiPlotParam <- renderUI({
     PlotParamType <- c("Sel", "Sel", "Num", "Num", "Num", "Num")
-    PlotParamList <- c("Device", "Units", "Grid", "Width", "Height", "Res")
+    PlotParamList <- c("Device", "Units", "Grid", "Width", "Height", "Dpi")
     PlotParamChoi <- list(c("png", "tiff"), c("in", "cm", "mm", "px"), NA, NA, NA, NA)
     PlotParamVal <- c(NA, NA, 4, 300, 200, 300)
     PlotParamStep <- c(NA, NA, 1, 50, 50, 50)
@@ -645,7 +640,7 @@ server <- function(input, output, session) {
           paste("all_histograms", input$InDevice, sep = ".")
           },
         content <- function(file) {
-          ggsave(file, plot = AllPl, device = input$InDevice, width = input$InWidth, units = "mm", height = input$InHeight)#, res = input$InRes)
+          ggsave(file, plot = AllPl, device = input$InDevice, width = input$InWidth, units = input$InUnits, height = input$InHeight, dpi = input$InDpi)
         }
       )
       # Return all plots
@@ -701,3 +696,4 @@ shinyApp(ui = ui, server = server)
 # Control grid of all plots
 # When one of the controls is empty it does not do it well
 # Dowload and save buttons are executed
+# Safe code to avoid dowloading empty documents
