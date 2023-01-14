@@ -64,7 +64,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       ),
                                       # Separator
                                       div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
-                                      # Ploidy level box (Change variable name)
+                                      # Ploidy level box
                                       div(style = "display: inline-block;vertical-align:top; width: 150px;",
                                           uiOutput("UiCtrlsPloNum")
                                       ),
@@ -83,50 +83,25 @@ ui <- fluidPage(theme = shinytheme("united"),
                            ),
                            # Panel 3
                            tabPanel("Summary",
+                                    # Panel 3 inputs
                                     fluidPage(
                                       # Obtain summary
                                       fluidRow(
                                         actionButton(inputId = "InSum", label = "Summary"),
                                         # Histogram of all samples
                                         plotOutput("HisPlotAll"),
-                                        
                                       ),
                                       fluidRow(
                                         # HTML instructions for proper display
-                                        div(style = "display: inline-block;vertical-align:top; width: 150px;",
-                                            # Change variable name
-                                            downloadButton("downloadPlot", "Save Plot")
-                                        ),
-                                        # Separator
-                                        div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
-                                        # Ploidy level box (Change variable name)
-                                        div(style = "display: inline-block;vertical-align:top; width: 150px;",
-                                            uiOutput("UiDevSel")
-                                        ),
-                                        # Separator
-                                        div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
-                                        uiOutput("UiPlotParamNum", inline = TRUE),
-                                        
-                                        
                                         #div(style = "display: inline-block;vertical-align:top; width: 150px;",
-                                            # Change variable name
-                                            
-                                        #),
-                                        
-                                        #div(style = "display: inline-block;vertical-align:top; width: 150px;",
-                                            # Change grid columns
-                                        #    uiOutput("UiGridNum"),
+                                        # Change variable name
+                                        column(1, downloadButton("downloadPlot", "Save Plot")),
                                         #),
                                         # Separator
-                                        #div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
+                                        column(1, div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>"))),
+                                        # 
                                         #div(style = "display: inline-block;vertical-align:top; width: 150px;",
-                                            # Change device type
-                                            
-                                        # Separator
-                                        #div(style = "display: inline-block;vertical-align:top; width: 50px;", HTML("<br>")),
-                                            
-                                        #),
-                                        
+                                        uiOutput("UiPlotParam"),
                                       ),
                                       HTML("</br>"),
                                       fluidRow(
@@ -138,7 +113,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     )
                                     
                            ),
-                           # Panel 3
+                           # Panel 4
                            tabPanel("Help",
                                     "In construction..."
                            )
@@ -332,28 +307,34 @@ server <- function(input, output, session) {
     }
   )
   
-  # Type of device
-  output$UiDevSel <- renderUI({
-    selectInput(inputId = "InDevice",
-                label = "Type of file",
-                choices = c("png", "tiff"),
-                selected = "png")
-  })
-  # Create numeric inputs for plot saving
-  
-  output$UiPlotParamNum <- renderUI({
-    PlotParamList <- c("Grid", "Width", "Height", "Res")
-    PlotParamVal <- c(4, 300, 200, 300)
-    PlotParamStep <- c(1, 50, 50, 50)
+  # Create selection inputs for plot saving
+  output$UiPlotParam <- renderUI({
+    PlotParamType <- c("Sel", "Sel", "Num", "Num", "Num", "Num")
+    PlotParamList <- c("Device", "Units", "Grid", "Width", "Height", "Res")
+    PlotParamChoi <- list(c("png", "tiff"), c("in", "cm", "mm", "px"), NA, NA, NA, NA)
+    PlotParamVal <- c(NA, NA, 4, 300, 200, 300)
+    PlotParamStep <- c(NA, NA, 1, 50, 50, 50)
+    PlotParamSel <- c("png", "mm")
     Ls <- list()
     for (i in 1:length(PlotParamList)){
-      Ls[[i]] <- div(
-        numericInput(inputId = paste0("In", PlotParamList[i]),
-                     label = PlotParamList[i],
-                     value = PlotParamVal[i],
-                     step = PlotParamStep[i]),
-        style = "display: inline-block;vertical-align:top; width: 150px;",
-      )
+      if (PlotParamType[i] == "Sel"){
+        Ls[[i]] <- div(
+          selectInput(inputId = paste0("In", PlotParamList[i]),
+                      label = PlotParamList[i],
+                      choices = PlotParamChoi[[i]],
+                      selected = PlotParamSel[i]),
+          style = "display: inline-block;vertical-align:top; width: 150px;",
+        )
+      } else {
+        Ls[[i]] <- div(
+          numericInput(inputId = paste0("In", PlotParamList[i]),
+                       label = PlotParamList[i],
+                       value = PlotParamVal[i],
+                       step = PlotParamStep[i]),
+          style = "display: inline-block;vertical-align:top; width: 150px;",
+        )
+      }
+      
     }
     Ls
   })
@@ -664,7 +645,7 @@ server <- function(input, output, session) {
           paste("all_histograms", input$InDevice, sep = ".")
           },
         content <- function(file) {
-          ggsave(file, plot = AllPl, device = input$InDevice)#, width = input$InWidth, height = input$InHeight, res = input$InRes)
+          ggsave(file, plot = AllPl, device = input$InDevice, width = input$InWidth, units = "mm", height = input$InHeight)#, res = input$InRes)
         }
       )
       # Return all plots
