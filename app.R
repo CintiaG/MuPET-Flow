@@ -566,7 +566,11 @@ server <- function(input, output, session) {
     Df$Ctrls$Ploidy <- AllPloidies
     # Linear model
     Mod <- lm(Ploidy ~ Intensity, data = Df$Ctrls)
-    
+    # Extract adjusted R squared
+    Rsquared <- round(summary(Mod)$adj.r.squared, 2)
+    # Extract p value
+    Pval <- pf(summary(Mod)$fstatistic[1], summary(Mod)$fstatistic[2], summary(Mod)$fstatistic[3], lower.tail = FALSE)
+    Pval <- formatC(Pval, format = "e", digits = 2)
     # Print summary
     output$RegText <- renderPrint({
       print(summary(Mod))
@@ -588,7 +592,8 @@ server <- function(input, output, session) {
       ggplot(data = Df$Res, mapping = aes(Intensity, Ploidy)) +
         geom_point(color = "red") +
         geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "black") +
-        geom_text_repel(label = paste(Df$Res$Sample, Df$Res$Phase))
+        geom_text_repel(label = paste(Df$Res$Sample, Df$Res$Phase)) +
+        annotate("text", x = min(Df$Res$Intensity) + 50, y = max(Df$Res$Ploidy) - 1, label = paste0("R\u00B2 = ", Rsquared, "\np = ", Pval), size = 5, parse = FALSE)
     })
   })
   
@@ -700,3 +705,4 @@ shinyApp(ui = ui, server = server)
 # When one of the controls is empty it does not do it well
 # Dowload and save buttons are executed
 # Safe code to avoid dowloading empty documents
+# Explani in hep what is the r and he pvalue
