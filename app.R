@@ -70,6 +70,8 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       ),
                                       # Perform regression and prediction
                                       actionButton(inputId = "InReg", label = "Regression"),
+                                      # Regression summary
+                                      verbatimTextOutput("RegText"),
                                     ),
                                     # Panel 2 outputs
                                     mainPanel(
@@ -565,9 +567,10 @@ server <- function(input, output, session) {
     # Linear model
     Mod <- lm(Ploidy ~ Intensity, data = Df$Ctrls)
     
-    # Summary
-    # render text? or plot in graph???
-    #summary(Mod)
+    # Print summary
+    output$RegText <- renderPrint({
+      print(summary(Mod))
+    })
     
     # Perform prediction
     Df$Tests$Ploidy <- predict(Mod, Df$Tests) %>% round(2)
