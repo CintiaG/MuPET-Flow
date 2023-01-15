@@ -453,7 +453,6 @@ server <- function(input, output, session) {
     req(input$InSample)
     req(PlotLine())
     req(input$InMaxPeaks)
-    req(input$InPeaksPlot)
     
     SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Get name for plotting and table
