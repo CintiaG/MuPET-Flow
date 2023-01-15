@@ -478,9 +478,8 @@ server <- function(input, output, session) {
   # Proxys for data replacement
   # Channel
   observeEvent(input$InChan, {
-    SampNum <- grep(input$InSample, names(InitDf()$Files))
-    # Update channel
-    Df$DataPeaks[SampNum, 2] <- input$InChan
+    # Update channel for all samples
+    Df$DataPeaks[, 2] <- input$InChan
     # Replace data
     Proxy <- DT::dataTableProxy('ResDf1')
     DT::replaceData(Proxy, Df$DataPeaks)
@@ -705,3 +704,5 @@ shinyApp(ui = ui, server = server)
 # Dowload and save buttons are executed
 # Safe code to avoid dowloading empty documents
 # Explani in hep what is the r and he pvalue
+# Selected channel has to change for all sample
+# Problem of channel because default is for my type of file
