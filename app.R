@@ -173,14 +173,6 @@ server <- function(input, output, session) {
                  min = 1,
                  step = 1)
   })
-  # Select calculated peaks to plot
-  output$UiPeaksBox <- renderUI({
-    checkboxGroupInput(inputId = "InPeaksPlot",
-                       label = "Select G1 and G2 peaks",
-                       choices = PlotPoints()$MaxIndex,
-                       selected = c(PlotPoints()$MaxIndex[1], PlotPoints()$MaxIndex[2]))
-  })
-  
 
   # Update UI when when files are uploaded
   observeEvent(input$InFiles, {
@@ -197,6 +189,16 @@ server <- function(input, output, session) {
                   label = "Select a channel",
                   choices = names(InitDf()$Files[[1]]),
                   selected = names(InitDf()$Files[[1]])[1])
+    })
+  })
+  
+  # Update UI peaks when when new channel is selected
+  observeEvent(input$InChan, {
+    output$UiPeaksBox <- renderUI({
+      checkboxGroupInput(inputId = "InPeaksPlot",
+                         label = "Select G1 and G2 peaks",
+                         choices = PlotPoints()$MaxIndex,
+                         selected = c(PlotPoints()$MaxIndex[1], PlotPoints()$MaxIndex[2]))
     })
   })
   
@@ -708,3 +710,5 @@ shinyApp(ui = ui, server = server)
 # Safe code to avoid dowloading empty documents
 # Explani in hep what is the r and he pvalue
 # I changed to change all channel, but I do not know why it gives an rerrror qhen I remove unsued code
+# I need to create init df only after channel is selected
+# Second selecti input sample is actually not executed
