@@ -479,8 +479,8 @@ server <- function(input, output, session) {
   # Channel
   observeEvent(input$InChan, {
     SampNum <- grep(input$InSample, names(InitDf()$Files))
-    # Update channel
-    Df$DataPeaks[SampNum, 2] <- input$InChan
+    # Update channel for all samples
+    Df$DataPeaks[, 2] <- input$InChan
     # Replace data
     Proxy <- DT::dataTableProxy('ResDf1')
     DT::replaceData(Proxy, Df$DataPeaks)
@@ -705,3 +705,4 @@ shinyApp(ui = ui, server = server)
 # Dowload and save buttons are executed
 # Safe code to avoid dowloading empty documents
 # Explani in hep what is the r and he pvalue
+# I changed to change all channel, but I do not know why it gives an rerrror qhen I remove unsued code
