@@ -145,7 +145,7 @@ server <- function(input, output, session) {
     selectInput(inputId = "InChan",
                 label = "Select a channel",
                 choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files[[1]])),
-                selected = ifelse(is.na(input$InFiles), "", names(InitDf()$Files[[1]])[20]))
+                selected = ifelse(is.na(input$InFiles), "", names(InitDf()$Files[[1]])[1]))
   })
   # Adjust smoothing
   output$UiSmoothNum <- renderUI({
@@ -196,7 +196,7 @@ server <- function(input, output, session) {
       selectInput(inputId = "InChan",
                   label = "Select a channel",
                   choices = names(InitDf()$Files[[1]]),
-                  selected = names(InitDf()$Files[[1]])[20])
+                  selected = names(InitDf()$Files[[1]])[1])
     })
   })
   
@@ -393,10 +393,10 @@ server <- function(input, output, session) {
       FilesLs[[i]] <- read.FCS(input$InFiles[[i, 'datapath']], emptyValue = FALSE, alter.names = TRUE)
       Name <- sub(" .*", "", input$InFiles$name[i])
       Names <- c(Names, Name)
-      Channels[i] <- names(FilesLs[[i]])[20]
+      Channels[i] <- names(FilesLs[[i]])[1]
       Smoothings[i] <- 0.1
       Windows[i] <- 50
-      LineLs[[i]] <- GetLine(File = FilesLs[[i]], ChanNum = 20, Span = 0.1)
+      LineLs[[i]] <- GetLine(File = FilesLs[[i]], ChanNum = 1, Span = 0.1)
       PointLs[[i]] <- GetPoints(PlotLine = LineLs[[i]], Width = 50)
       G1s[i] <- PointLs[[i]]$MaxIndex[1]
       G2s[i] <- PointLs[[i]]$MaxIndex[2]
