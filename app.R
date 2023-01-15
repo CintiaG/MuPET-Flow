@@ -341,7 +341,9 @@ server <- function(input, output, session) {
   GetLine <- function(File, ChanNum, Span){
     # Extract and filter expressions
     Exp <- exprs(File[, ChanNum])
+    # Filter low and high values to fit bins in histogram
     Exp <- Exp[Exp >= 1]
+    Exp <- Exp[Exp <= 1000]
     # Calculate histogram
     Hist <- hist(Exp, breaks = 1:1000, plot = FALSE)
     # Counts is the y histogram variable
