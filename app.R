@@ -305,7 +305,9 @@ server <- function(input, output, session) {
   # Panel 3 inputs
   # Render compilation of all histograms
   output$HisPlotAll <- renderPlot({
-    AllPl()
+    req(Df$Res)
+    # Compile and arrange plots
+    grid.arrange(grobs = AllPl(), ncol = input$InGrid)
   })
   # Create selection inputs for plot saving
   output$UiPlotParam <- renderUI({
@@ -768,8 +770,8 @@ server <- function(input, output, session) {
       # Save plot in list
       PlotLs[[i]] <- Pl
     }
-    # Compile and arrange plots
-    grid.arrange(grobs = PlotLs, ncol = input$InGrid)
+    # Return list of plots
+    PlotLs
   })
 }
 
