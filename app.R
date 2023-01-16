@@ -482,9 +482,26 @@ server <- function(input, output, session) {
   # Proxys for data replacement
   # Channel
   observeEvent(input$InChan, {
+    req(InitDf())
     SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Update channel for all samples
     Df$DataPeaks[, 2] <- input$InChan
+    # Recalculate peaks for all samples
+    for (i in 1:length(InitDf()$Files)){
+      # Get file information
+      File <- InitDf()$Files[[i]]
+      # Get channels information
+      ChanNum <- grep(input$InChan, names(File))
+      # Return Line working data frame
+      LineWkDf <- GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[i, 3])
+      # Get width
+      Width <- Df$DataPeaks[i, 4]
+      # Return points
+      PointsWkDf <-  GetPoints(Width = Width, PlotLine = LineWkDf)
+      # Update peaks
+      Df$DataPeaks[i, 5] <- PointsWkDf$MaxIndex[1]
+      Df$DataPeaks[i, 6] <- PointsWkDf$MaxIndex[2]
+    }
     # Replace data
     Proxy <- DT::dataTableProxy('ResDf1')
     DT::replaceData(Proxy, Df$DataPeaks)
