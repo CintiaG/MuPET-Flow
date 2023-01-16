@@ -300,8 +300,6 @@ server <- function(input, output, session) {
     })
   })
   
-  # Regression things
-  
   # Panel 3 inputs
   # Render compilation of all histograms
   output$HisPlotAll <- renderPlot({
@@ -346,11 +344,9 @@ server <- function(input, output, session) {
       paste("all_histograms", input$InDevice, sep = ".")
     },
     content <- function(file) {
-      ggsave(file, plot = AllPl(), device = input$InDevice, width = input$InWidth, units = input$InUnits, height = input$InHeight, dpi = input$InDpi)
+      ggsave(file, plot = grid.arrange(grobs = AllPl(), ncol = input$InGrid), device = input$InDevice, width = input$InWidth, units = input$InUnits, height = input$InHeight, dpi = input$InDpi)
     }
   )
-  
-  # Render table???  
   
   # Download data
   output$DownloadData <- downloadHandler(
@@ -419,7 +415,7 @@ server <- function(input, output, session) {
     # Read FCS files and calculate initial information
     for(i in 1:length(input$InFiles[, 1])){
       FilesLs[[i]] <- read.FCS(input$InFiles[[i, 'datapath']], emptyValue = FALSE, alter.names = TRUE)
-      Name <- sub(" .*", "", input$InFiles$name[i])
+      Name <- sub(" .*", "", sub(".fcs", "", input$InFiles$name[i]))
       Names <- c(Names, Name)
       Channels[i] <- names(FilesLs[[i]])[1]
       Smoothings[i] <- 0.1
@@ -646,7 +642,7 @@ server <- function(input, output, session) {
     # Linear model
     Mod <- lm(Ploidy ~ Intensity, data = Df$Ctrls)
     # Extract adjusted R squared
-    Rsquared <- round(summary(Mod)$adj.r.squared, 2)
+    Rsquared <- substr(as.character(summary(Mod)$adj.r.squared), 0, 5)
     # Extract p value
     Pval <- pf(summary(Mod)$fstatistic[1], summary(Mod)$fstatistic[2], summary(Mod)$fstatistic[3], lower.tail = FALSE)
     Pval <- formatC(Pval, format = "e", digits = 2)
@@ -780,24 +776,13 @@ shinyApp(ui = ui, server = server)
 
 
 # Pending
-# las modification of name sape
-# orde peraks before saving?
-# The number of peaks behaviour is weird, it is not updated
-# add summary or R2 in plot? with p?
-# Obtain average of both peaks and give a final result?
+# Order peaks before saving?
 # Help section
-# Dowload final data perhaps only and not the peaks?
-# Is it useful the maximun number of peaks? it is not connected to the box...
-# Control grid of all plots
+# Is it useful the maximum number of peaks? it is not connected to the box...
 # When one of the controls is empty it does not do it well
-# Dowload and save buttons are executed
-# Safe code to avoid dowloading empty documents
-# Explani in hep what is the r and he pvalue
-# I changed to change all channel, but I do not know why it gives an rerrror qhen I remove unsued code
-# I need to create init df only after channel is selected
-# Second selecti input sample is actually not executed
-# When you reload files, it does wait to plot the summary
-# Tha name for other files do not work that well
-# There is a problem when you hit summary buttom and there or regression when there are not point
-# Possibly we chan put out in event reactive other this racting to InReg
-# No warning is shonw when no peaks are detected
+# Safe code to avoid downloading empty documents
+# Explain in help what is the plotted r and he pvalue
+# I changed to change all channel, but I do not know why it gives an error when I remove unused code
+# Second select input sample is possibly not executed
+# Perhaps order of outputs could be better
+# App works better with files with ".fcs" extension or either with a space to take the name
