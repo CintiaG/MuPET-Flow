@@ -554,6 +554,7 @@ server <- function(input, output, session) {
   # Regression calculations
   observeEvent(input$InReg, {
     req(input$InCtrlSample1)
+    req(input$InPeaksPlot)
     # Select required information from DataPeaks
     Df$DataReg <- Df$DataPeaks[,c(1,5,6)]
     # Combine G1 and G2 fluorescent intensity
@@ -737,3 +738,4 @@ shinyApp(ui = ui, server = server)
 # When you reload files, it does wait to plot the summary
 # Tha name for other files do not work that well
 # There is a problem when you hit summary buttom and there or regression when there are not point
+# Possibly we chan put out in event reactive other this racting to InReg
