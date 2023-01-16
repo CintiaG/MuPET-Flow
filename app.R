@@ -277,7 +277,6 @@ server <- function(input, output, session) {
       Ls
     })
   })
-  
   # Create controls ploidy
   observeEvent(input$InFiles, {
     output$UiCtrlsPloNum <- renderUI({
@@ -295,17 +294,13 @@ server <- function(input, output, session) {
     })
   })
   
-  # Panel 3 inputs
-  # Download data
-  output$DownloadData <- downloadHandler(
-    filename <- function() {
-      "peaks.csv"
-    },
-    content <- function(file) {
-      write.csv(Df$Sum, file, row.names = FALSE)
-    }
-  )
+  # Regression things
   
+  # Panel 3 inputs
+  # Render compilation of all histograms
+  output$HisPlotAll <- renderPlot({
+    AllPl()
+  })
   # Create selection inputs for plot saving
   output$UiPlotParam <- renderUI({
     PlotParamType <- c("Sel", "Sel", "Num", "Num", "Num", "Num")
@@ -337,6 +332,27 @@ server <- function(input, output, session) {
     }
     Ls
   })
+  # Download figure
+  output$downloadPlot <- downloadHandler(
+    filename <- function() {
+      paste("all_histograms", input$InDevice, sep = ".")
+    },
+    content <- function(file) {
+      ggsave(file, plot = AllPl(), device = input$InDevice, width = input$InWidth, units = input$InUnits, height = input$InHeight, dpi = input$InDpi)
+    }
+  )
+  
+  # Render table???  
+  
+  # Download data
+  output$DownloadData <- downloadHandler(
+    filename <- function() {
+      "peaks.csv"
+    },
+    content <- function(file) {
+      write.csv(Df$Sum, file, row.names = FALSE)
+    }
+  )
 
   # Define specific functions for peaks calculation
   # Lines
@@ -621,60 +637,6 @@ server <- function(input, output, session) {
   observeEvent(input$InSum, {
     req(InitDf())
     req(Df$Res)
-    # Plot all histograms
-    output$HisPlotAll <- renderPlot({
-      # Create empty list to store plots
-      PlotLs <- list()
-      # Loop over the samples and create lines
-      for (i in 1:length(InitDf()$Files)){
-        # Create plot line
-        # Get file information
-        File <- InitDf()$Files[[i]]
-        # Get channels information
-        ChanNum <- grep(input$InChan, names(File))
-        # Return Line working data frame
-        LineWkDf <- GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[i, 3])
-        # Create plot points
-        # Get width
-        Width <- Df$DataPeaks[i, 4]
-        # Return points
-        PointsWkDf <-  GetPoints(Width = Width, PlotLine = LineWkDf)
-        # Get name for plotting and table
-        Name <- names(InitDf()$Files)[i]
-        # Number of labels but only the peaks selected in Panel 1
-        LabNum <- match(Df$DataPeaks[i, c(5,6)], PointsWkDf$MaxIndex)
-        # Labels
-        Labs <- paste0("G", 1:length(PointsWkDf$MaxIndex))
-        # Plot histogram with points
-        Pl <- ggplot(LineWkDf, aes(x = Fluorescence, y = Freq)) +
-          geom_line() +
-          annotate("point", x = PointsWkDf$MaxIndex[LabNum],
-                   y = PointsWkDf$Intensity[LabNum],
-                   col = "red") +
-          annotate("text", x = PointsWkDf$MaxIndex[LabNum],
-                   y = PointsWkDf$Intensity[LabNum] + 10,
-                   col = "black",
-                   label = Labs[1:length(LabNum)]) +
-          labs(title = Name) +
-          theme(plot.title = element_text(hjust = 0.5))
-        # Save plot in list
-        PlotLs[[i]] <- Pl
-      }
-      # Compile and arrange plots
-      AllPl <- grid.arrange(grobs = PlotLs, ncol = input$InGrid)
-      # Download figure
-      output$downloadPlot <- downloadHandler(
-        filename <- function() {
-          paste("all_histograms", input$InDevice, sep = ".")
-          },
-        content <- function(file) {
-          ggsave(file, plot = AllPl, device = input$InDevice, width = input$InWidth, units = input$InUnits, height = input$InHeight, dpi = input$InDpi)
-        }
-      )
-      # Return all plots
-      AllPl
-    })
-    
     # Copy regression results data frame
     Df$Sum <-Df$Res
     # Remove intensity to compare ploidies of different phases
@@ -706,6 +668,49 @@ server <- function(input, output, session) {
     output$ResDf3 <- DT::renderDataTable(isolate(Df$Sum),
                                          editable = FALSE)
   })
+  
+  # Plot all histograms
+  AllPl <- eventReactive(input$InSum, {
+    # Create empty list to store plots
+    PlotLs <- list()
+    # Loop over the samples and create lines
+    for (i in 1:length(InitDf()$Files)){
+      # Create plot line
+      # Get file information
+      File <- InitDf()$Files[[i]]
+      # Get channels information
+      ChanNum <- grep(input$InChan, names(File))
+      # Return Line working data frame
+      LineWkDf <- GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[i, 3])
+      # Create plot points
+      # Get width
+      Width <- Df$DataPeaks[i, 4]
+      # Return points
+      PointsWkDf <-  GetPoints(Width = Width, PlotLine = LineWkDf)
+      # Get name for plotting and table
+      Name <- names(InitDf()$Files)[i]
+      # Number of labels but only the peaks selected in Panel 1
+      LabNum <- match(Df$DataPeaks[i, c(5,6)], PointsWkDf$MaxIndex)
+      # Labels
+      Labs <- paste0("G", 1:length(PointsWkDf$MaxIndex))
+      # Plot histogram with points
+      Pl <- ggplot(LineWkDf, aes(x = Fluorescence, y = Freq)) +
+        geom_line() +
+        annotate("point", x = PointsWkDf$MaxIndex[LabNum],
+                 y = PointsWkDf$Intensity[LabNum],
+                 col = "red") +
+        annotate("text", x = PointsWkDf$MaxIndex[LabNum],
+                 y = PointsWkDf$Intensity[LabNum] + 10,
+                 col = "black",
+                 label = Labs[1:length(LabNum)]) +
+        labs(title = Name) +
+        theme(plot.title = element_text(hjust = 0.5))
+      # Save plot in list
+      PlotLs[[i]] <- Pl
+    }
+    # Compile and arrange plots
+    grid.arrange(grobs = PlotLs, ncol = input$InGrid)
+  })
 }
 
 # Create Shiny object
@@ -729,3 +734,6 @@ shinyApp(ui = ui, server = server)
 # I changed to change all channel, but I do not know why it gives an rerrror qhen I remove unsued code
 # I need to create init df only after channel is selected
 # Second selecti input sample is actually not executed
+# When you reload files, it does wait to plot the summary
+# Tha name for other files do not work that well
+# There is a problem when you hit summary buttom and there or regression when there are not point
