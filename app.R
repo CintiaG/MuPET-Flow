@@ -193,7 +193,7 @@ server <- function(input, output, session) {
   })
   
   # Update UI peaks when when new channel is selected
-  observeEvent(input$InChan, {
+  observeEvent(c(input$InSample, input$InChan), {
     output$UiPeaksBox <- renderUI({
       checkboxGroupInput(inputId = "InPeaksPlot",
                          label = "Select G1 and G2 peaks",
