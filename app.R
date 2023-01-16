@@ -43,6 +43,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     mainPanel(
                                       # Histogram plot
                                       h3("Histogram"),
+                                      verbatimTextOutput("Warn1"),
                                       plotOutput("HisPlot"),
                                       #  Table results 1
                                       h3("Estimated peaks and used parameters"),
@@ -69,6 +70,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                           uiOutput("UiCtrlsPloNum")
                                       ),
                                       # Perform regression and prediction
+                                      HTML("</br>"),
                                       actionButton(inputId = "InReg", label = "Regression"),
                                       # Regression summary
                                       verbatimTextOutput("RegText"),
@@ -77,6 +79,8 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     mainPanel(
                                       # Regression plot
                                       h3("Regression"),
+                                      verbatimTextOutput("Warn2"),
+                                      verbatimTextOutput("Warn3"),
                                       plotOutput("RegPlot"),
                                       # Table results 2
                                       h3("Estimated ploidy"),
@@ -91,6 +95,8 @@ ui <- fluidPage(theme = shinytheme("united"),
                                         # Obtain summary
                                         actionButton(inputId = "InSum", label = "Summary"),
                                         # Histogram of all samples
+                                        verbatimTextOutput("Warn4"),
+                                        verbatimTextOutput("Warn5"),
                                         plotOutput("HisPlotAll"),
                                       ),
                                       HTML("</br>"),
@@ -465,7 +471,16 @@ server <- function(input, output, session) {
     # Return points
     GetPoints(Width = Width, PlotLine = PlotLine())
   })
+  # Warning to incorrect execution of regression
+  WarnHis1 <- reactive({
+    validate(
+      need(input$InFiles != "", "Please upload files to obtain histograms"),
+    )
+  })
   
+  output$Warn1 <- renderPrint({
+    WarnHis1()
+  })
   # Plot data
   output$HisPlot <- renderPlot({
     req(input$InFiles)
@@ -552,9 +567,34 @@ server <- function(input, output, session) {
   })
   
   # Regression calculations
+  # Warning to incorrect execution of regression
+  WarnReg2 <- reactive({
+    validate(
+      need(input$InFiles != "", "Please upload files to obtain regression"),
+      need(input$InCtrlSample2 != "", "Please provide at least two controls to perform regression"),
+    )
+  })
+  
+  output$Warn2 <- renderPrint({
+    WarnReg2()
+  })
+  
+  WarnReg3 <- eventReactive(input$InReg, {
+    validate(
+      need(input$InCtrlSample2 != "", "Please provide at least two controls to perform regression"),
+      need(length(input$InPeaksPlot) != 0, "No peaks detected"),
+    )
+  })
+  
+  output$Warn3 <- renderPrint({
+    WarnReg3()
+  })
+  
+  # Create linear regression model
   observeEvent(input$InReg, {
-    req(input$InCtrlSample1)
+    req(input$InCtrlSample2)
     req(input$InPeaksPlot)
+    
     # Select required information from DataPeaks
     Df$DataReg <- Df$DataPeaks[,c(1,5,6)]
     # Combine G1 and G2 fluorescent intensity
@@ -633,7 +673,26 @@ server <- function(input, output, session) {
         annotate("text", x = min(Df$Res$Intensity) + 50, y = max(Df$Res$Ploidy) - 1, label = paste0("R\u00B2 = ", Rsquared, "\np = ", Pval), size = 5, parse = FALSE)
     })
   })
+  # Warning to incorrect execution of summary
+  WarnSum4 <- reactive({
+    validate(
+      need(input$InFiles != "", "Please peform regression firts"),
+    )
+  })
   
+  output$Warn4 <- renderPrint({
+    WarnSum4()
+  })
+  
+  WarnSum5 <- eventReactive(input$InSum, {
+    validate(
+      need(Df$Res != "", "No regression found")
+    )
+  })
+  
+  output$Warn5 <- renderPrint({
+    WarnSum5()
+  })
   # Summary
   observeEvent(input$InSum, {
     req(InitDf())
@@ -739,3 +798,4 @@ shinyApp(ui = ui, server = server)
 # Tha name for other files do not work that well
 # There is a problem when you hit summary buttom and there or regression when there are not point
 # Possibly we chan put out in event reactive other this racting to InReg
+# No warning is shonw when no peaks are detected
