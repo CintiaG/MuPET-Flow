@@ -786,3 +786,5 @@ shinyApp(ui = ui, server = server)
 # Second select input sample is possibly not executed
 # Perhaps order of outputs could be better
 # App works better with files with ".fcs" extension or either with a space to take the name
+# Sometimes it crashes when changing  and it does not plots the peaks
+# Maybe include a button to quiclky upload previously calculated smoth and window
