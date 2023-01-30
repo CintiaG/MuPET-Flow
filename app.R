@@ -776,7 +776,7 @@ shinyApp(ui = ui, server = server)
 
 
 # Pending
-# Order peaks before saving?
+# Change order peaks before ploting and saving?
 # Help section
 # Is it useful the maximum number of peaks? it is not connected to the box...
 # When one of the controls is empty it does not do it well
@@ -787,4 +787,5 @@ shinyApp(ui = ui, server = server)
 # Perhaps order of outputs could be better
 # App works better with files with ".fcs" extension or either with a space to take the name
 # Sometimes it crashes when changing  and it does not plots the peaks
-# Maybe include a button to quiclky upload previously calculated smoth and window
+# Maybe include a button to quickly upload previously calculated smooth and window
+# Bug of strains with same prefix
