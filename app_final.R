@@ -179,7 +179,7 @@ server <- function(input, output, session) {
                  min = 1,
                  step = 1)
   })
-  
+
   # Update UI when when files are uploaded
   observeEvent(input$InFiles, {
     req(InitDf())
@@ -276,9 +276,9 @@ server <- function(input, output, session) {
       Ls <- list()
       for (i in 1:length(ControlsList)){
         Ls[[i]] <- selectInput(inputId = paste0("InCtrlSample", i),
-                               label = ControlsList[i],
-                               choices = c("", names(InitDf()$Files)),
-                               selected = "")
+                              label = ControlsList[i],
+                              choices = c("", names(InitDf()$Files)),
+                              selected = "")
       }
       Ls
     })
@@ -291,10 +291,10 @@ server <- function(input, output, session) {
       Ls <- list()
       for (i in 1:length(PloidyList)){
         Ls[[i]] <- numericInput(inputId = paste0("InCtrlPlo", i),
-                                label = PloidyList[i],
-                                value = i,
-                                min = 1,
-                                step = 1)
+                               label = PloidyList[i],
+                               value = i,
+                               min = 1,
+                               step = 1)
       }
       Ls
     })
@@ -357,7 +357,7 @@ server <- function(input, output, session) {
       write.csv(Df$Sum, file, row.names = FALSE)
     }
   )
-  
+
   # Define specific functions for peaks calculation
   # Lines
   GetLine <- function(File, ChanNum, Span){
@@ -436,16 +436,16 @@ server <- function(input, output, session) {
   observeEvent(input$InFiles, {
     req(InitDf())
     Df$DataPeaks <- data.frame(Sample = names(InitDf()$Files),
-                               Channel = InitDf()$Channels,
-                               Smoothing = InitDf()$Smoothings,
-                               Window = InitDf()$Windows,
-                               G1 = InitDf()$G1s,
-                               G2 = InitDf()$G2s)
+                          Channel = InitDf()$Channels,
+                          Smoothing = InitDf()$Smoothings,
+                          Window = InitDf()$Windows,
+                          G1 = InitDf()$G1s,
+                          G2 = InitDf()$G2s)
     
     output$ResDf1 <- DT::renderDataTable(isolate(Df$DataPeaks),
-                                         editable = FALSE)
+                                        editable = FALSE)
   })
-  
+
   # Create plot line
   PlotLine <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan), {
     req(InitDf())
@@ -507,7 +507,7 @@ server <- function(input, output, session) {
       labs(title = Name) +
       theme(plot.title = element_text(hjust = 0.5))
   })
-  
+
   # Proxys for data replacement
   # Channel
   observeEvent(input$InChan, {
