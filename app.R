@@ -392,9 +392,9 @@ server <- function(input, output, session) {
     MaxIndex <- which(Delta <= 0) + Width
     # Obtain intensity of the points (y axis)
     Intensity <- PlotLine$Freq[MaxIndex]
-    # Remove peaks with intensity lower than 10
-    MaxIndex <- MaxIndex[Intensity > 10]
-    Intensity <- Intensity[Intensity > 10]
+    # Remove peaks with intensity lower than 5
+    MaxIndex <- MaxIndex[Intensity > 5]
+    Intensity <- Intensity[Intensity > 5]
     # Create points data frame
     data.frame(MaxIndex = MaxIndex, Intensity = Intensity)
   }
@@ -789,3 +789,6 @@ shinyApp(ui = ui, server = server)
 # Sometimes it crashes when changing  and it does not plots the peaks
 # Maybe include a button to quickly upload previously calculated smooth and window
 # Bug of strains with same prefix
+# Update script to resume analysis using previously determined data
+# Add download each image? add permutation or exclusion of images? Or plot by control order and then the peak size? but leave the alphabetic order peak?
+# Add section of multiple peaks?
