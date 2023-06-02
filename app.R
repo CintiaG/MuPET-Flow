@@ -363,11 +363,15 @@ server <- function(input, output, session) {
   GetLine <- function(File, ChanNum, Span){
     # Extract and filter expressions
     Exp <- exprs(File[, ChanNum])
+    # Estimate the maximum number of bins from the data, and exclude negative values
+    MaxBreaks <- length(seq(0, range(File)[,ChanNum][2]))
+    # Assumes that lowest possible binning is 256, which allows to exclude low range channels
+    MaxBreaks <- ifelse(MaxBreaks < 256, 256, MaxBreaks)
     # Filter low and high values to fit bins in histogram
     Exp <- Exp[Exp >= 1]
-    Exp <- Exp[Exp <= 1000]
+    Exp <- Exp[Exp <= MaxBreaks]
     # Calculate histogram
-    Hist <- hist(Exp, breaks = 1:1000, plot = FALSE)
+    Hist <- hist(Exp, breaks = 1:MaxBreaks, plot = FALSE)
     # Counts is the y histogram variable
     Counts <- Hist$counts
     # Index is the x histogram variable
@@ -800,3 +804,4 @@ shinyApp(ui = ui, server = server)
 # If only one peak detected for one sample, r is not plotted
 # Download regression summary and plot
 # Button to control min peak heigth
+# Error span is too small
