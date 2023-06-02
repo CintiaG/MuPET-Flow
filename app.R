@@ -393,8 +393,8 @@ server <- function(input, output, session) {
     # Obtain intensity of the points (y axis)
     Intensity <- PlotLine$Freq[MaxIndex]
     # Remove peaks with intensity lower than 5
-    MaxIndex <- MaxIndex[Intensity > 5]
-    Intensity <- Intensity[Intensity > 5]
+    MaxIndex <- MaxIndex[Intensity > 3]
+    Intensity <- Intensity[Intensity > 3]
     # Create points data frame
     data.frame(MaxIndex = MaxIndex, Intensity = Intensity)
   }
@@ -792,3 +792,11 @@ shinyApp(ui = ui, server = server)
 # Update script to resume analysis using previously determined data
 # Add download each image? add permutation or exclusion of images? Or plot by control order and then the peak size? but leave the alphabetic order peak?
 # Add section of multiple peaks?
+# Bug: once I select a peak and then change the smoothing, it deselect the chosen peaks. Also when I change sample, odesnt record peaks permanently.
+# App does not work well if several G2 are not detected
+# It does not plot the p
+# It is not updating the last chaged windown.
+# When maximun file excede options(shiny.maxRequestSize = 10 * 1024^2)
+# If only one peak detected for one sample, r is not plotted
+# Download regression summary and plot
+# Button to control min peak heigth
