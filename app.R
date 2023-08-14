@@ -26,16 +26,18 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       h3("Inputs"),
                                       # Input files
                                       uiOutput("UiFileUp"),
-                                      # Select sample
-                                      uiOutput("UiSampleSel"),
                                       # Select channel
                                       uiOutput("UiChannelSel"),
+                                      # Select sample
+                                      uiOutput("UiSampleSel"),
                                       # Adjust smoothing
                                       uiOutput("UiSmoothNum"),
                                       # Adjust window
                                       uiOutput("UiWindowNum"),
                                       # Select maximum number of peaks
                                       uiOutput("UiPeaksNum"),
+                                      # Select minimum number of events
+                                      uiOutput("UiEveMin"),
                                       # Select calculated peaks to plot
                                       uiOutput("UiPeaksBox"),
                                     ),
@@ -57,8 +59,13 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       h3("Inputs"),
                                       # Select controls
                                       uiOutput("UiCtrlsNum"),
-                                      # Display boxes
+                                      # Select type of analysis
                                       # HTML instructions for proper display
+                                      div(
+                                          # Change variable name
+                                          uiOutput("UiType")
+                                      ),
+                                      # Display boxes
                                       div(style = "display: inline-block;vertical-align:top; width: 150px;",
                                           # Change variable name
                                           uiOutput("UiCtrlsSampleSel")
@@ -174,10 +181,18 @@ server <- function(input, output, session) {
   # Select maximum number of peaks
   output$UiPeaksNum <- renderUI({
     numericInput(inputId = "InMaxPeaks",
-                 label = "Select maximun number of peaks",
+                 label = "Select maximun number of peaks to plot",
                  value = 3,
                  min = 1,
                  step = 1)
+  })
+  # Select minimun number of events
+  output$UiEveMin <- renderUI({
+    numericInput(inputId = "InMinEve",
+                 label = "Select minimun number of events for peak",
+                 value = 5,
+                 min = 0.5,
+                 step = 0.5)
   })
   
   # Update UI when when files are uploaded
@@ -198,8 +213,9 @@ server <- function(input, output, session) {
     })
   })
   
-  # Update UI peaks when when new channel is selected
-  observeEvent(c(input$InSample, input$InChan), {
+
+  # Update UI peaks when new channel is selected
+  observeEvent(input$InChan, {
     output$UiPeaksBox <- renderUI({
       checkboxGroupInput(inputId = "InPeaksPlot",
                          label = "Select G1 and G2 peaks",
@@ -264,9 +280,20 @@ server <- function(input, output, session) {
   output$UiCtrlsNum <- renderUI({
     numericInput(inputId = "InNumCtrl",
                  label = "Number of controls",
-                 value = ifelse(length(input$InFiles[, 1]) < 5, length(input$InFiles[, 1]), 5),
+                 value = ifelse(length(input$InFiles[, 1]) < 4, length(input$InFiles[, 1]), 4),
                  min = 1,
                  step = 1)
+  })
+  # Create ploidy or genome size type of analysis
+  observeEvent(input$InFiles, {
+    output$UiType <- renderUI({
+      req(input$InNumCtrl)
+      radioButtons(inputId = "InType",
+                   label = "Select type of analysis",
+                   choices = c("Ploidy", "Genome size"),
+                   selected = "Ploidy",
+                   inline = TRUE)
+    })
   })
   # Create select controls
   observeEvent(input$InFiles, {
@@ -287,7 +314,7 @@ server <- function(input, output, session) {
   observeEvent(input$InFiles, {
     output$UiCtrlsPloNum <- renderUI({
       req(input$InNumCtrl)
-      PloidyList <- paste("Ploidy", 1:input$InNumCtrl)
+      PloidyList <- paste(input$InType, 1:input$InNumCtrl)
       Ls <- list()
       for (i in 1:length(PloidyList)){
         Ls[[i]] <- numericInput(inputId = paste0("InCtrlPlo", i),
@@ -396,9 +423,9 @@ server <- function(input, output, session) {
     MaxIndex <- which(Delta <= 0) + Width
     # Obtain intensity of the points (y axis)
     Intensity <- PlotLine$Freq[MaxIndex]
-    # Remove peaks with intensity lower than 5
-    MaxIndex <- MaxIndex[Intensity > 3]
-    Intensity <- Intensity[Intensity > 3]
+    # Remove peaks with number of events lower than specified by user
+    MaxIndex <- MaxIndex[Intensity > input$InMinEve]
+    Intensity <- Intensity[Intensity > input$InMinEve]
     # Create points data frame
     data.frame(MaxIndex = MaxIndex, Intensity = Intensity)
   }
@@ -419,7 +446,7 @@ server <- function(input, output, session) {
     # Read FCS files and calculate initial information
     for(i in 1:length(input$InFiles[, 1])){
       FilesLs[[i]] <- read.FCS(input$InFiles[[i, 'datapath']], emptyValue = FALSE, alter.names = TRUE)
-      Name <- sub(" .*", "", sub(".fcs", "", input$InFiles$name[i]))
+      Name <- sub(" .*", "", sub(".FCS", "", sub(".fcs", "", input$InFiles$name[i])))
       Names <- c(Names, Name)
       Channels[i] <- names(FilesLs[[i]])[1]
       Smoothings[i] <- 0.1
@@ -464,7 +491,7 @@ server <- function(input, output, session) {
   })
   
   # Create plot points
-  PlotPoints <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan, input$InMaxPeaks), {
+  PlotPoints <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan, input$InMaxPeaks, input$InMinEve), {
     req(InitDf())
     # Get sample name
     SampNum <- grep(input$InSample, names(InitDf()$Files))
@@ -490,6 +517,7 @@ server <- function(input, output, session) {
     req(input$InSample)
     req(PlotLine())
     req(input$InMaxPeaks)
+    req(input$InMinEve)
     
     SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Get name for plotting and table
@@ -663,8 +691,11 @@ server <- function(input, output, session) {
     # Before rendering data frame, change row names and column order
     rownames(Df$Res) <- 1:nrow(Df$Res)
     Df$Res <- Df$Res[,c(1, 4, 2, 3, 5)]
+    Df$ResPrelim <- Df$Res
+    # Add size to ploidy column name
+    colnames(Df$ResPrelim)[5] <- input$InType
     # Final output data frame
-    output$ResDf2 <- DT::renderDataTable(isolate(Df$Res),
+    output$ResDf2 <- DT::renderDataTable(isolate(Df$ResPrelim),
                                          editable = FALSE)
     # Plot regression
     output$RegPlot <- renderPlot({
@@ -672,7 +703,8 @@ server <- function(input, output, session) {
         geom_point(color = "red") +
         geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "black") +
         geom_text_repel(label = paste(Df$Res$Sample, Df$Res$Phase)) +
-        annotate("text", x = min(Df$Res$Intensity) + 50, y = max(Df$Res$Ploidy) - 1, label = paste0("R\u00B2 = ", Rsquared, "\np = ", Pval), size = 5, parse = FALSE)
+        annotate("text", x = min(Df$Res$Intensity) + 50, y = max(Df$Res$Ploidy) - 1, label = paste0("R\u00B2 = ", Rsquared, "\np = ", Pval), size = 5, parse = FALSE) +
+        labs(y = input$InType)
     })
   })
   # Warning to incorrect execution of summary
@@ -714,8 +746,8 @@ server <- function(input, output, session) {
     # Obtain rounded ploidy
     Df$Sum$Rounded <- round(Df$Sum$Mean, 0)
     # Rename phase G1 and G2 in the second data frame
-    colnames(Df$Sum)[3] <- "Ploidy G1"
-    colnames(Df$Sum)[4] <- "Ploidy G2"
+    colnames(Df$Sum)[3] <- paste(input$InType, "G1")
+    colnames(Df$Sum)[4] <- paste(input$InType, "G2")
     # Combine with histograms panel data frame
     Df$Sum <- left_join(Df$DataPeaks, Df$Sum)
     # Convert intensity to numeric
@@ -780,28 +812,22 @@ shinyApp(ui = ui, server = server)
 
 
 # Pending
-# Change order peaks before ploting and saving?
 # Help section
-# Is it useful the maximum number of peaks? it is not connected to the box...
-# When one of the controls is empty it does not do it well
-# Safe code to avoid downloading empty documents
-# Explain in help what is the plotted r and he pvalue
-# I changed to change all channel, but I do not know why it gives an error when I remove unused code
-# Second select input sample is possibly not executed
-# Perhaps order of outputs could be better
-# App works better with files with ".fcs" extension or either with a space to take the name
-# Sometimes it crashes when changing  and it does not plots the peaks
-# Maybe include a button to quickly upload previously calculated smooth and window
-# Bug of strains with same prefix
-# Update script to resume analysis using previously determined data
-# Add download each image? add permutation or exclusion of images? Or plot by control order and then the peak size? but leave the alphabetic order peak?
-# Add section of multiple peaks?
-# Bug: once I select a peak and then change the smoothing, it deselect the chosen peaks. Also when I change sample, odesnt record peaks permanently.
-# App does not work well if several G2 are not detected
-# It does not plot the p
-# It is not updating the last chaged windown.
-# When maximun file excede options(shiny.maxRequestSize = 10 * 1024^2)
-# If only one peak detected for one sample, r is not plotted
-# Download regression summary and plot
-# Button to control min peak heigth
-# Error span is too small
+# Explain in help what is the plotted r and the pvalue
+
+# Known issues
+# App works deletes ".fcs" and ".FCS" extensions from files names, and removes everything after a space to generate the sample name
+# If after this previous process duplicated names are generated, the app will crash, thus it is better to name the files with unique names
+# Sometimes it crashes when loading different samples, so it is better to close and re-run the app
+# Notice that when modifying the smoothing and window, it recalculates and deselect already chosen peaks
+# When one peak value is empty it does not do plot the Rsquared and Pvalue
+# When files are large and exceed the maximum size, prior running the app you can set in your console: options(shiny.maxRequestSize = 10 * 1024^2)
+# It will give an error in window (span) is too small
+
+# Potential improvements
+# Add safe code to avoid downloading empty documents
+# Add code to download individual histograms and linear regression plots
+# Add code to download regression summary as text
+# Add code to exclude samples from final summary histograms
+# Add code to download all detected peaks when more than two are detected
+# Generate new version of script to resume analysis using previously determined smoothing and window
