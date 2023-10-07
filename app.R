@@ -18,7 +18,7 @@ library(gridExtra)
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
                 # App name
-                navbarPage("Flow Peaks",
+                navbarPage("MuPET-FC",
                            # Panel 1
                            tabPanel("Peaks",
                                     # Panel 1 inputs
@@ -57,7 +57,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     # Panel 2 inputs
                                     sidebarPanel(
                                       h3("Inputs"),
-                                      # Select controls
+                                      # Select standards
                                       uiOutput("UiCtrlsNum"),
                                       # Select type of analysis
                                       # HTML instructions for proper display
@@ -100,7 +100,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     fluidPage(
                                       fluidRow(
                                         # Obtain summary
-                                        actionButton(inputId = "InSum", label = "Summary"),
+                                        actionButton(inputId = "InSum", label = "Preview"),
                                         # Histogram of all samples
                                         verbatimTextOutput("Warn4"),
                                         verbatimTextOutput("Warn5"),
@@ -118,7 +118,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                         # Table results 3
                                         DT::dataTableOutput("ResDf3"),
                                         # Download data
-                                        downloadButton("DownloadData", "Download"),
+                                        downloadButton("DownloadData", "Save table"),
                                       ),
                                     )
                                     
@@ -143,15 +143,9 @@ server <- function(input, output, session) {
   # Input files
   output$UiFileUp <- renderUI({
     fileInput(inputId = "InFiles",
-              label = "Upload FCS files",
+              label = "Upload multiple FCS files",
               multiple = TRUE,
               accept = c(".FCS", ".fcs"))
-  })
-  # Select sample
-  output$UiSampleSel <- renderUI({
-    selectInput(inputId = "InSample",
-                label = "Select a sample",
-                choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
   })
   # Select channel
   output$UiChannelSel <- renderUI({
@@ -159,6 +153,12 @@ server <- function(input, output, session) {
                 label = "Select a channel",
                 choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files[[1]])),
                 selected = ifelse(is.na(input$InFiles), "", names(InitDf()$Files[[1]])[1]))
+  })
+  # Select sample
+  output$UiSampleSel <- renderUI({
+    selectInput(inputId = "InSample",
+                label = "Select a sample",
+                choices = ifelse(is.na(input$InFiles), "", names(InitDf()$Files)))
   })
   # Adjust smoothing
   output$UiSmoothNum <- renderUI({
@@ -172,7 +172,7 @@ server <- function(input, output, session) {
   # Adjust window
   output$UiWindowNum <- renderUI({
     numericInput(inputId = "InWindow",
-                 label = "Adjust window",
+                 label = "Adjust window width",
                  value = 50,
                  min = 1,
                  max = 1000,
@@ -189,7 +189,7 @@ server <- function(input, output, session) {
   # Select minimun number of events
   output$UiEveMin <- renderUI({
     numericInput(inputId = "InMinEve",
-                 label = "Select minimun number of events for peak",
+                 label = "Select minimun count number for peak",
                  value = 5,
                  min = 0.5,
                  step = 0.5)
@@ -276,10 +276,10 @@ server <- function(input, output, session) {
   })
   
   # Panel 2 inputs
-  # Select number of controls
+  # Select number of standards
   output$UiCtrlsNum <- renderUI({
     numericInput(inputId = "InNumCtrl",
-                 label = "Number of controls",
+                 label = "Select number of standards",
                  value = ifelse(length(input$InFiles[, 1]) < 4, length(input$InFiles[, 1]), 4),
                  min = 1,
                  step = 1)
@@ -295,22 +295,22 @@ server <- function(input, output, session) {
                    inline = TRUE)
     })
   })
-  # Create select controls
+  # Create select standards
   observeEvent(input$InFiles, {
     output$UiCtrlsSampleSel <- renderUI({
       req(input$InNumCtrl)
-      ControlsList <- paste("Control", 1:input$InNumCtrl)
+      StandardList <- paste("Standard", 1:input$InNumCtrl)
       Ls <- list()
-      for (i in 1:length(ControlsList)){
+      for (i in 1:length(StandardList)){
         Ls[[i]] <- selectInput(inputId = paste0("InCtrlSample", i),
-                               label = ControlsList[i],
+                               label = StandardList[i],
                                choices = c("", names(InitDf()$Files)),
                                selected = "")
       }
       Ls
     })
   })
-  # Create controls ploidy
+  # Create standards ploidy
   observeEvent(input$InFiles, {
     output$UiCtrlsPloNum <- renderUI({
       req(input$InNumCtrl)
@@ -408,7 +408,7 @@ server <- function(input, output, session) {
     # FitLine is the smoothed line
     FitLine <- predict(Fit)
     # Create plotting data frame
-    data.frame(Fluorescence = Index, Freq = FitLine)
+    data.frame(Fluorescence = Index, Count = FitLine)
   }
   
   # Points
@@ -416,13 +416,13 @@ server <- function(input, output, session) {
     # The window to calculate the maximum
     Window <- 2 * Width + 1
     # Do a sliding window of 2 * Width + 1, and step of 1, and calculate the maximum value of a given window
-    FlatLine <- rollapply(data = zoo(PlotLine$Freq), width = Window, FUN = max, align = "center")
+    FlatLine <- rollapply(data = zoo(PlotLine$Count), width = Window, FUN = max, align = "center")
     # Calculate the difference between flattened and fitted lines
-    Delta <- FlatLine - PlotLine$Freq[-c(1:Width, length(PlotLine$Fluorescence) + 1 - 1:Width)]
+    Delta <- FlatLine - PlotLine$Count[-c(1:Width, length(PlotLine$Fluorescence) + 1 - 1:Width)]
     # Obtain the indices in which the difference equals to zero, and adjust to the width because of the sliding window step
     MaxIndex <- which(Delta <= 0) + Width
     # Obtain intensity of the points (y axis)
-    Intensity <- PlotLine$Freq[MaxIndex]
+    Intensity <- PlotLine$Count[MaxIndex]
     # Remove peaks with number of events lower than specified by user
     MaxIndex <- MaxIndex[Intensity > input$InMinEve]
     Intensity <- Intensity[Intensity > input$InMinEve]
@@ -527,7 +527,7 @@ server <- function(input, output, session) {
     # Labels
     Labs <- paste0("G", 1:length(PlotPoints()$MaxIndex))
     # Plot histogram with points
-    ggplot(PlotLine(), aes(x = Fluorescence, y = Freq)) +
+    ggplot(PlotLine(), aes(x = Fluorescence, y = Count)) +
       geom_line() +
       annotate("point", x = PlotPoints()$MaxIndex[1:input$InMaxPeaks],
                y = PlotPoints()$Intensity[1:input$InMaxPeaks],
@@ -600,8 +600,8 @@ server <- function(input, output, session) {
   # Warning to incorrect execution of regression
   WarnReg2 <- reactive({
     validate(
-      need(input$InFiles != "", "Please upload files to obtain regression"),
-      need(input$InCtrlSample2 != "", "Please provide at least two controls to perform regression"),
+      need(input$InFiles != "", "Please upload files to perform regression"),
+      need(input$InCtrlSample2 != "", "Please provide at least two standards to perform regression"),
     )
   })
   
@@ -611,7 +611,7 @@ server <- function(input, output, session) {
   
   WarnReg3 <- eventReactive(input$InReg, {
     validate(
-      need(input$InCtrlSample2 != "", "Please provide at least two controls to perform regression"),
+      need(input$InCtrlSample2 != "", "Please provide at least two standards to perform regression"),
       need(length(input$InPeaksPlot) != 0, "No peaks detected"),
     )
   })
@@ -647,12 +647,12 @@ server <- function(input, output, session) {
     }
     # Create pattern to search samples
     PatternSearch <- paste(Pattern, collapse = "|")
-    # Separate controls and test data frames
+    # Separate standards and test data frames
     Df$Ctrls <- Df$DataReg[grep(PatternSearch, Df$DataReg$Sample),]
     Df$Tests <- Df$DataReg[-grep(PatternSearch, Df$DataReg$Sample),]
     # Add test and control type information
-    Df$Ctrls$Type <- "Control"
-    # To control in case no controls are selected
+    Df$Ctrls$Type <- "Standard"
+    # To control in case no standards are selected
     if (nrow(Df$Tests) > 0){
       Df$Tests$Type <- "Test"
     }
@@ -788,7 +788,7 @@ server <- function(input, output, session) {
       # Labels
       Labs <- paste0("G", 1:length(PointsWkDf$MaxIndex))
       # Plot histogram with points
-      Pl <- ggplot(LineWkDf, aes(x = Fluorescence, y = Freq)) +
+      Pl <- ggplot(LineWkDf, aes(x = Fluorescence, y = Count)) +
         geom_line() +
         annotate("point", x = PointsWkDf$MaxIndex[LabNum],
                  y = PointsWkDf$Intensity[LabNum],
