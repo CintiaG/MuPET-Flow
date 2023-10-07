@@ -1,8 +1,8 @@
-# Flow Peaks App
+# MuPET-FC: Multiple Ploidy Estimation Tool
 
 Created: January 30, 2023
 
-Updated: January 30, 2023
+Updated: October 7, 2023
 
 Authors: C. Gómez-Muñoz*
 
