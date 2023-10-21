@@ -34,10 +34,10 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       uiOutput("UiSmoothNum"),
                                       # Adjust window
                                       uiOutput("UiWindowNum"),
-                                      # Select maximum number of peaks
-                                      uiOutput("UiPeaksNum"),
                                       # Select minimum number of events
                                       uiOutput("UiEveMin"),
+                                      # Select maximum number of peaks
+                                      uiOutput("UiPeaksNum"),
                                       # Select calculated peaks to plot
                                       uiOutput("UiPeaksBox"),
                                     ),
@@ -57,14 +57,14 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     # Panel 2 inputs
                                     sidebarPanel(
                                       h3("Inputs"),
-                                      # Select standards
-                                      uiOutput("UiCtrlsNum"),
                                       # Select type of analysis
                                       # HTML instructions for proper display
                                       div(
-                                          # Change variable name
-                                          uiOutput("UiType")
+                                        # Change variable name
+                                        uiOutput("UiType")
                                       ),
+                                      # Select standards
+                                      uiOutput("UiCtrlsNum"),
                                       # Display boxes
                                       div(style = "display: inline-block;vertical-align:top; width: 150px;",
                                           # Change variable name
@@ -125,7 +125,8 @@ ui <- fluidPage(theme = shinytheme("united"),
                            ),
                            # Panel 4
                            tabPanel("Help",
-                                    "In construction..."
+                                    "In construction...",
+                                    uiOutput('textWithHTML')
                            )
                 )
 )
@@ -804,6 +805,15 @@ server <- function(input, output, session) {
     }
     # Return list of plots
     PlotLs
+  })
+  
+  # Panel 4 help
+  output$textWithHTML <- renderUI({
+    rawText <- readLines('help.txt')
+    splitText <- stringi::stri_split(str = rawText, regex = '\\n')
+    replacedText <- lapply(splitText, p)
+    
+    return(replacedText)
   })
 }
 
