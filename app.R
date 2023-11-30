@@ -434,34 +434,43 @@ server <- function(input, output, session) {
   # Peak calculations
   # Get initial files and information
   InitDf <- eventReactive(input$InFiles, {
-    FilesLs <- list()
-    Channels <- NULL
-    Smoothings <- NULL
-    Windows <- NULL
-    LineLs <- list()
-    PointLs <- list()
-    G1s <- NULL
-    G2s <- NULL
-    Names <- NULL
+    # Code used to evaluate run time (START)
+    timing_result <- system.time({
+      
+      FilesLs <- list()
+      Channels <- NULL
+      Smoothings <- NULL
+      Windows <- NULL
+      LineLs <- list()
+      PointLs <- list()
+      G1s <- NULL
+      G2s <- NULL
+      Names <- NULL
+      
+      # Read FCS files and calculate initial information
+      for(i in 1:length(input$InFiles[, 1])){
+        FilesLs[[i]] <- read.FCS(input$InFiles[[i, 'datapath']], emptyValue = FALSE, alter.names = TRUE)
+        Name <- sub(" .*", "", sub(".FCS", "", sub(".fcs", "", input$InFiles$name[i])))
+        Names <- c(Names, Name)
+        Channels[i] <- names(FilesLs[[i]])[1]
+        Smoothings[i] <- 0.1
+        Windows[i] <- 50
+        LineLs[[i]] <- GetLine(File = FilesLs[[i]], ChanNum = 1, Span = 0.1)
+        PointLs[[i]] <- GetPoints(PlotLine = LineLs[[i]], Width = 50)
+        G1s[i] <- PointLs[[i]]$MaxIndex[1]
+        G2s[i] <- PointLs[[i]]$MaxIndex[2]
+      }
+      
+      names(FilesLs) <- Names
+    })
+    # Code used to evaluate run time (END)
+    print("Upload time")
+    print(timing_result)
     
-    # Read FCS files and calculate initial information
-    for(i in 1:length(input$InFiles[, 1])){
-      FilesLs[[i]] <- read.FCS(input$InFiles[[i, 'datapath']], emptyValue = FALSE, alter.names = TRUE)
-      Name <- sub(" .*", "", sub(".FCS", "", sub(".fcs", "", input$InFiles$name[i])))
-      Names <- c(Names, Name)
-      Channels[i] <- names(FilesLs[[i]])[1]
-      Smoothings[i] <- 0.1
-      Windows[i] <- 50
-      LineLs[[i]] <- GetLine(File = FilesLs[[i]], ChanNum = 1, Span = 0.1)
-      PointLs[[i]] <- GetPoints(PlotLine = LineLs[[i]], Width = 50)
-      G1s[i] <- PointLs[[i]]$MaxIndex[1]
-      G2s[i] <- PointLs[[i]]$MaxIndex[2]
-    }
-    
-    names(FilesLs) <- Names
     # Return a list with the information
     list(Files = FilesLs, Channels = Channels, Smoothings = Smoothings, Windows = Windows, G1s = G1s, G2s = G2s)
   })
+  
   # Create reactive values to modify initially calculated data (It had to be created as reactive value to be modified via proxy)
   Df <- reactiveValues(DataPeaks = NULL)
   # Copy information form initial data frame
@@ -623,90 +632,96 @@ server <- function(input, output, session) {
   
   # Create linear regression model
   observeEvent(input$InReg, {
-    req(input$InCtrlSample2)
-    req(input$InPeaksPlot)
-    
-    # Select required information from DataPeaks
-    Df$DataReg <- Df$DataPeaks[,c(1,5,6)]
-    # Combine G1 and G2 fluorescent intensity
-    Df$DataReg <- gather(data = Df$DataReg,
-                         key = "Phase",
-                         value = "Intensity",
-                         -Sample)
-    # Convert intensity to numeric
-    Df$DataReg$Intensity <- as.numeric(Df$DataReg$Intensity)
-    # Order alphabetically
-    Df$DataReg <- Df$DataReg[order(Df$DataReg$Sample),]
-    # Initialize variable
-    Pattern <- NULL
-    # Create control sample strings to evaluate
-    CtrlSamples <- paste0("input$InCtrlSample", 1:input$InNumCtrl)
-    # Loop over strings
-    for (Sample in CtrlSamples){
-      # Evaluate each string to obtain the input stored value
-      Pattern <- c(Pattern, eval(parse(text = Sample)))
-    }
-    # Create pattern to search samples
-    PatternSearch <- paste(Pattern, collapse = "|")
-    # Separate standards and test data frames
-    Df$Ctrls <- Df$DataReg[grep(PatternSearch, Df$DataReg$Sample),]
-    Df$Tests <- Df$DataReg[-grep(PatternSearch, Df$DataReg$Sample),]
-    # Add test and control type information
-    Df$Ctrls$Type <- "Standard"
-    # To control in case no standards are selected
-    if (nrow(Df$Tests) > 0){
-      Df$Tests$Type <- "Test"
-    }
-    # Create control ploidy strings to evaluate
-    CtrlPloidies <- paste0("input$InCtrlPlo", 1:input$InNumCtrl)
-    # Initialize variable
-    AllPloidies <- NULL
-    # Loop over strings
-    for (Ploidy in CtrlPloidies){
-      # Evaluate each string to obtain the input stored value
-      AllPloidies <- c(AllPloidies, eval(parse(text = Ploidy)))
-    }
-    # Change order of all ploidies to match the one in the data frame
-    AllPloidies <- AllPloidies[match(unique(Df$Ctrls$Sample), Pattern)]
-    # Multiply ploidy for G2 peaks
-    AllPloidies <- rep(AllPloidies, each = 2) * 1:2
-    # Add ploidy
-    Df$Ctrls$Ploidy <- AllPloidies
-    # Linear model
-    Mod <- lm(Ploidy ~ Intensity, data = Df$Ctrls)
-    # Extract adjusted R squared
-    Rsquared <- substr(as.character(summary(Mod)$adj.r.squared), 0, 5)
-    # Extract p value
-    Pval <- pf(summary(Mod)$fstatistic[1], summary(Mod)$fstatistic[2], summary(Mod)$fstatistic[3], lower.tail = FALSE)
-    Pval <- formatC(Pval, format = "e", digits = 2)
-    # Print summary
-    output$RegText <- renderPrint({
-      print(summary(Mod))
+    # Code used to evaluate run time (START)
+    timing_result <- system.time({
+      
+      req(input$InCtrlSample2)
+      req(input$InPeaksPlot)
+      
+      # Select required information from DataPeaks
+      Df$DataReg <- Df$DataPeaks[,c(1,5,6)]
+      # Combine G1 and G2 fluorescent intensity
+      Df$DataReg <- gather(data = Df$DataReg,
+                           key = "Phase",
+                           value = "Intensity",
+                           -Sample)
+      # Convert intensity to numeric
+      Df$DataReg$Intensity <- as.numeric(Df$DataReg$Intensity)
+      # Order alphabetically
+      Df$DataReg <- Df$DataReg[order(Df$DataReg$Sample),]
+      # Initialize variable
+      Pattern <- NULL
+      # Create control sample strings to evaluate
+      CtrlSamples <- paste0("input$InCtrlSample", 1:input$InNumCtrl)
+      # Loop over strings
+      for (Sample in CtrlSamples){
+        # Evaluate each string to obtain the input stored value
+        Pattern <- c(Pattern, eval(parse(text = Sample)))
+      }
+      # Create pattern to search samples
+      PatternSearch <- paste(Pattern, collapse = "|")
+      # Separate standards and test data frames
+      Df$Ctrls <- Df$DataReg[grep(PatternSearch, Df$DataReg$Sample),]
+      Df$Tests <- Df$DataReg[-grep(PatternSearch, Df$DataReg$Sample),]
+      # Add test and control type information
+      Df$Ctrls$Type <- "Standard"
+      # To control in case no standards are selected
+      if (nrow(Df$Tests) > 0){
+        Df$Tests$Type <- "Test"
+      }
+      # Create control ploidy strings to evaluate
+      CtrlPloidies <- paste0("input$InCtrlPlo", 1:input$InNumCtrl)
+      # Initialize variable
+      AllPloidies <- NULL
+      # Loop over strings
+      for (Ploidy in CtrlPloidies){
+        # Evaluate each string to obtain the input stored value
+        AllPloidies <- c(AllPloidies, eval(parse(text = Ploidy)))
+      }
+      # Change order of all ploidies to match the one in the data frame
+      AllPloidies <- AllPloidies[match(unique(Df$Ctrls$Sample), Pattern)]
+      # Multiply ploidy for G2 peaks
+      AllPloidies <- rep(AllPloidies, each = 2) * 1:2
+      # Add ploidy
+      Df$Ctrls$Ploidy <- AllPloidies
+      # Linear model
+      Mod <- lm(Ploidy ~ Intensity, data = Df$Ctrls)
+      # Extract adjusted R squared
+      Rsquared <- substr(as.character(summary(Mod)$adj.r.squared), 0, 5)
+      # Extract p value
+      Pval <- pf(summary(Mod)$fstatistic[1], summary(Mod)$fstatistic[2], summary(Mod)$fstatistic[3], lower.tail = FALSE)
+      Pval <- formatC(Pval, format = "e", digits = 2)
+      # Print summary
+      output$RegText <- renderPrint({
+        print(summary(Mod))
+      })
+      # Perform prediction
+      Df$Tests$Ploidy <- predict(Mod, Df$Tests) %>% round(2)
+      # Combine results
+      Df$Res <- rbind(Df$Ctrls, Df$Tests)
+      
+      # Before rendering data frame, change row names and column order
+      rownames(Df$Res) <- 1:nrow(Df$Res)
+      Df$Res <- Df$Res[,c(1, 4, 2, 3, 5)]
+      Df$ResPrelim <- Df$Res
+      # Add size to ploidy column name
+      colnames(Df$ResPrelim)[5] <- input$InType
+      # Final output data frame
+      output$ResDf2 <- DT::renderDataTable(isolate(Df$ResPrelim),
+                                           editable = FALSE)
+      # Plot regression
+      output$RegPlot <- renderPlot({
+        ggplot(data = Df$Res, mapping = aes(Intensity, Ploidy)) +
+          geom_point(color = "red") +
+          geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "black") +
+          geom_text_repel(label = paste(Df$Res$Sample, Df$Res$Phase)) +
+          annotate("text", x = min(Df$Res$Intensity) + 50, y = max(Df$Res$Ploidy) - 1, label = paste0("R\u00B2 = ", Rsquared, "\np = ", Pval), size = 5, parse = FALSE) +
+          labs(y = input$InType)
+      })
     })
-    
-    # Perform prediction
-    Df$Tests$Ploidy <- predict(Mod, Df$Tests) %>% round(2)
-    # Combine results
-    Df$Res <- rbind(Df$Ctrls, Df$Tests)
-    
-    # Before rendering data frame, change row names and column order
-    rownames(Df$Res) <- 1:nrow(Df$Res)
-    Df$Res <- Df$Res[,c(1, 4, 2, 3, 5)]
-    Df$ResPrelim <- Df$Res
-    # Add size to ploidy column name
-    colnames(Df$ResPrelim)[5] <- input$InType
-    # Final output data frame
-    output$ResDf2 <- DT::renderDataTable(isolate(Df$ResPrelim),
-                                         editable = FALSE)
-    # Plot regression
-    output$RegPlot <- renderPlot({
-      ggplot(data = Df$Res, mapping = aes(Intensity, Ploidy)) +
-        geom_point(color = "red") +
-        geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "black") +
-        geom_text_repel(label = paste(Df$Res$Sample, Df$Res$Phase)) +
-        annotate("text", x = min(Df$Res$Intensity) + 50, y = max(Df$Res$Ploidy) - 1, label = paste0("R\u00B2 = ", Rsquared, "\np = ", Pval), size = 5, parse = FALSE) +
-        labs(y = input$InType)
-    })
+    # Code used to evaluate run time (END)
+    print("Regression time")
+    print(timing_result)
   })
   # Warning to incorrect execution of summary
   WarnSum4 <- reactive({
@@ -730,79 +745,93 @@ server <- function(input, output, session) {
   })
   # Summary
   observeEvent(input$InSum, {
-    req(InitDf())
-    req(Df$Res)
-    # Copy regression results data frame
-    Df$Sum <-Df$Res
-    # Remove intensity to compare ploidies of different phases
-    Df$Sum <- Df$Sum[,-4]
-    # Spread data
-    Df$Sum <- spread(Df$Sum,
-                     key = "Phase",
-                     value = "Ploidy")
-    # Divide G2 by 2
-    Df$Sum$G2 <- round(Df$Sum$G2 / 2, 2)
-    # Obtain mean of G1 and G2
-    Df$Sum <- mutate(Df$Sum, Mean = round(rowMeans(select(Df$Sum, G1, G2), na.rm = TRUE), 2))
-    # Obtain rounded ploidy
-    Df$Sum$Rounded <- round(Df$Sum$Mean, 0)
-    # Rename phase G1 and G2 in the second data frame
-    colnames(Df$Sum)[3] <- paste(input$InType, "G1")
-    colnames(Df$Sum)[4] <- paste(input$InType, "G2")
-    # Combine with histograms panel data frame
-    Df$Sum <- left_join(Df$DataPeaks, Df$Sum)
-    # Convert intensity to numeric
-    Df$Sum$G1 <- as.numeric(Df$Sum$G1)
-    Df$Sum$G2 <- as.numeric(Df$Sum$G2)
-    # Rename phase G1 and G2 in the summary data frame
-    colnames(Df$Sum)[5] <- "Intensity G1"
-    colnames(Df$Sum)[6] <- "Intensity G2"
-    # Rearrange data frame order
-    Df$Sum <- Df$Sum[,c(1,7,2:6,8:11)]
-    # Final output data frame
-    output$ResDf3 <- DT::renderDataTable(isolate(Df$Sum),
-                                         editable = FALSE)
+    # Code used to evaluate run time (START)
+    timing_result <- system.time({
+      
+      req(InitDf())
+      req(Df$Res)
+      # Copy regression results data frame
+      Df$Sum <-Df$Res
+      # Remove intensity to compare ploidies of different phases
+      Df$Sum <- Df$Sum[,-4]
+      # Spread data
+      Df$Sum <- spread(Df$Sum,
+                       key = "Phase",
+                       value = "Ploidy")
+      # Divide G2 by 2
+      Df$Sum$G2 <- round(Df$Sum$G2 / 2, 2)
+      # Obtain mean of G1 and G2
+      Df$Sum <- mutate(Df$Sum, Mean = round(rowMeans(select(Df$Sum, G1, G2), na.rm = TRUE), 2))
+      # Obtain rounded ploidy
+      Df$Sum$Rounded <- round(Df$Sum$Mean, 0)
+      # Rename phase G1 and G2 in the second data frame
+      colnames(Df$Sum)[3] <- paste(input$InType, "G1")
+      colnames(Df$Sum)[4] <- paste(input$InType, "G2")
+      # Combine with histograms panel data frame
+      Df$Sum <- left_join(Df$DataPeaks, Df$Sum)
+      # Convert intensity to numeric
+      Df$Sum$G1 <- as.numeric(Df$Sum$G1)
+      Df$Sum$G2 <- as.numeric(Df$Sum$G2)
+      # Rename phase G1 and G2 in the summary data frame
+      colnames(Df$Sum)[5] <- "Intensity G1"
+      colnames(Df$Sum)[6] <- "Intensity G2"
+      # Rearrange data frame order
+      Df$Sum <- Df$Sum[,c(1,7,2:6,8:11)]
+      # Final output data frame
+      output$ResDf3 <- DT::renderDataTable(isolate(Df$Sum),
+                                           editable = FALSE)
+    })
+    # Code used to evaluate run time (END)
+    print("Peaks calculation time")
+    print(timing_result)
   })
   
   # Plot all histograms
   AllPl <- eventReactive(input$InSum, {
-    # Create empty list to store plots
-    PlotLs <- list()
-    # Loop over the samples and create lines
-    for (i in 1:length(InitDf()$Files)){
-      # Create plot line
-      # Get file information
-      File <- InitDf()$Files[[i]]
-      # Get channels information
-      ChanNum <- grep(input$InChan, names(File))
-      # Return Line working data frame
-      LineWkDf <- GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[i, 3])
-      # Create plot points
-      # Get width
-      Width <- Df$DataPeaks[i, 4]
-      # Return points
-      PointsWkDf <-  GetPoints(Width = Width, PlotLine = LineWkDf)
-      # Get name for plotting and table
-      Name <- names(InitDf()$Files)[i]
-      # Number of labels but only the peaks selected in Panel 1
-      LabNum <- match(Df$DataPeaks[i, c(5,6)], PointsWkDf$MaxIndex)
-      # Labels
-      Labs <- paste0("G", 1:length(PointsWkDf$MaxIndex))
-      # Plot histogram with points
-      Pl <- ggplot(LineWkDf, aes(x = Fluorescence, y = Count)) +
-        geom_line() +
-        annotate("point", x = PointsWkDf$MaxIndex[LabNum],
-                 y = PointsWkDf$Intensity[LabNum],
-                 col = "red") +
-        annotate("text", x = PointsWkDf$MaxIndex[LabNum],
-                 y = PointsWkDf$Intensity[LabNum] + 10,
-                 col = "black",
-                 label = Labs[1:length(LabNum)]) +
-        labs(title = Name) +
-        theme(plot.title = element_text(hjust = 0.5))
-      # Save plot in list
-      PlotLs[[i]] <- Pl
-    }
+    # Code used to evaluate run time (START)
+    timing_result <- system.time({
+      # Create empty list to store plots
+      PlotLs <- list()
+      # Loop over the samples and create lines
+      for (i in 1:length(InitDf()$Files)){
+        # Create plot line
+        # Get file information
+        File <- InitDf()$Files[[i]]
+        # Get channels information
+        ChanNum <- grep(input$InChan, names(File))
+        # Return Line working data frame
+        LineWkDf <- GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[i, 3])
+        # Create plot points
+        # Get width
+        Width <- Df$DataPeaks[i, 4]
+        # Return points
+        PointsWkDf <-  GetPoints(Width = Width, PlotLine = LineWkDf)
+        # Get name for plotting and table
+        Name <- names(InitDf()$Files)[i]
+        # Number of labels but only the peaks selected in Panel 1
+        LabNum <- match(Df$DataPeaks[i, c(5,6)], PointsWkDf$MaxIndex)
+        # Labels
+        Labs <- paste0("G", 1:length(PointsWkDf$MaxIndex))
+        # Plot histogram with points
+        Pl <- ggplot(LineWkDf, aes(x = Fluorescence, y = Count)) +
+          geom_line() +
+          annotate("point", x = PointsWkDf$MaxIndex[LabNum],
+                   y = PointsWkDf$Intensity[LabNum],
+                   col = "red") +
+          annotate("text", x = PointsWkDf$MaxIndex[LabNum],
+                   y = PointsWkDf$Intensity[LabNum] + 10,
+                   col = "black",
+                   label = Labs[1:length(LabNum)]) +
+          labs(title = Name) +
+          theme(plot.title = element_text(hjust = 0.5))
+        # Save plot in list
+        PlotLs[[i]] <- Pl
+      }
+    })
+    # Code used to evaluate run time (END)
+    print("Plots generation time")
+    print(timing_result)
+    
     # Return list of plots
     PlotLs
   })
