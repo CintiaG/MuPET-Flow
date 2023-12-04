@@ -709,13 +709,21 @@ server <- function(input, output, session) {
       # Final output data frame
       output$ResDf2 <- DT::renderDataTable(isolate(Df$ResPrelim),
                                            editable = FALSE)
+      # Get Rsquared coordinates to plot
+      RsquaredXcoord <- Df$Res$Intensity
+      RsquaredXcoord <- RsquaredXcoord[!is.na(RsquaredXcoord)]
+      RsquaredXcoord <- min(RsquaredXcoord)
+      
+      RsquaredYcoord <- Df$Res$Ploidy
+      RsquaredYcoord <- RsquaredYcoord[!is.na(RsquaredYcoord)]
+      RsquaredYcoord <- max(RsquaredYcoord)
       # Plot regression
       output$RegPlot <- renderPlot({
         ggplot(data = Df$Res, mapping = aes(Intensity, Ploidy)) +
           geom_point(color = "red") +
           geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "black") +
           geom_text_repel(label = paste(Df$Res$Sample, Df$Res$Phase)) +
-          annotate("text", x = min(Df$Res$Intensity) + 50, y = max(Df$Res$Ploidy) - 1, label = paste0("R\u00B2 = ", Rsquared, "\np = ", Pval), size = 5, parse = FALSE) +
+          annotate("text", x = RsquaredXcoord + 50, y = RsquaredYcoord - 1, label = paste0("R\u00B2 = ", Rsquared, "\np = ", Pval), size = 5, parse = FALSE) +
           labs(y = input$InType)
       })
     })
