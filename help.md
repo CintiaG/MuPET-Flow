@@ -2,21 +2,6 @@
 
 Sorry, we are in construction...
 
-### Pre-requisites
-
-These are the libraries required to run MuPET-FC. Here we provide links to their source or installation instructions.
-
-* [shiny](https://shiny.posit.co/r/getstarted/shiny-basics/lesson1/index.html)
-* [shinythemes](https://rstudio.github.io/shinythemes/)
-* [flowCore](https://bioconductor.org/packages/release/bioc/html/flowCore.html)
-* [zoo](https://cran.r-project.org/web/packages/zoo/index.html)
-* [ggplot2](https://ggplot2.tidyverse.org/)
-* [DT](https://rstudio.github.io/DT/)
-* [tidyverse](https://www.tidyverse.org/packages/)
-* [ggrepel](https://cran.r-project.org/web/packages/ggrepel/readme/README.html)
-* [gridExtra](https://cran.r-project.org/web/packages/gridExtra/index.html)
-* [markdown](https://cran.r-project.org/web/packages/markdown/index.html)
-
 ### Known issues
 
 * App works deletes `.fcs` and `.FCS` extensions from files names, and removes everything after a space to generate the sample name. If after this previous process duplicated names are generated, the app will crash, thus it is better to name the files with unique names
