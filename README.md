@@ -1,4 +1,4 @@
-# MuPET-FC: Multiple Ploidy Estimation Tool from Flow Cytometry data
+# MuPET-Flow: Multiple Ploidy Estimation Tool from Flow Cytometry data
 
 Created: January 30, 2023
 
@@ -12,16 +12,16 @@ Authors: Gómez-Muñoz, C.*
 
 ## Introduction
 
-MuPET-FC is a Shiny app intended to analyze flow cytometry data to produce fluorescence histograms, estimate peaks' intensity and calculate ploidy using known standards.
+MuPET-Flow is a Shiny app intended to analyze flow cytometry data to produce fluorescence histograms, estimate peaks' intensity and calculate ploidy using known standards.
 
 We will update the app description shortly. Feel free to report any bugs you encounter.
 
 ## Installation
 
-MuPET-FC can be installed by downloading the files on this repository manually or via **GitHub CLI**:
+MuPET-Flow can be installed by downloading the files on this repository manually or via **GitHub CLI**:
 
 ```bash
-gh repo clone CintiaG/MuPET-FC
+gh repo clone CintiaG/MuPET-Flow
 ```
 
 `app.R` file needs to be run in **RStudio** by clicking the “Run App” button.
@@ -29,7 +29,7 @@ gh repo clone CintiaG/MuPET-FC
 
 ### Pre-requisites
 
-These are the libraries required to run MuPET-FC. Here we provide links to their source or installation instructions.
+These are the libraries required to run MuPET-Flow. Here we provide links to their source or installation instructions.
 
 * [shiny](https://shiny.posit.co/r/getstarted/shiny-basics/lesson1/index.html)
 * [shinythemes](https://rstudio.github.io/shinythemes/)
@@ -41,3 +41,8 @@ These are the libraries required to run MuPET-FC. Here we provide links to their
 * [ggrepel](https://cran.r-project.org/web/packages/ggrepel/readme/README.html)
 * [gridExtra](https://cran.r-project.org/web/packages/gridExtra/index.html)
 * [markdown](https://cran.r-project.org/web/packages/markdown/index.html)
+
+<!--
+Pending
+A minimum of two different standards is required, but more are recommended.
+ -->

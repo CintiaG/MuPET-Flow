@@ -1,5 +1,5 @@
 ####################################
-# Flow Peaks                       #
+# MuPET-Flow                       #
 # An app to calculate peaks from   #
 # flow cytometer histograms        #
 ####################################
@@ -19,7 +19,7 @@ library(markdown)
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
                 # App name
-                navbarPage("MuPET-FC",
+                navbarPage("MuPET-Flow",
                            # Panel 1
                            tabPanel("Peaks",
                                     # Panel 1 inputs
