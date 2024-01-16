@@ -783,6 +783,8 @@ server <- function(input, output, session) {
       # Rename phase G1 and G2 in the summary data frame
       colnames(Df$Sum)[5] <- "Intensity G1"
       colnames(Df$Sum)[6] <- "Intensity G2"
+      colnames(Df$Sum)[10] <- "Ploidy Mean"
+      colnames(Df$Sum)[11] <- "Ploidy Rounded"
       # Rearrange data frame order and remove ploidy inferred from G1 and G2 peaks (columns 8 and 9)
       Df$Sum <- Df$Sum[,c(1,7,2:6,10,11)]
       # Final output data frame
