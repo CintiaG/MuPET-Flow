@@ -190,7 +190,7 @@ server <- function(input, output, session) {
   # Select minimun number of events
   output$UiEveMin <- renderUI({
     numericInput(inputId = "InMinEve",
-                 label = "Select minimun count number for peak",
+                 label = "Select minimun cell counts to call a peak",
                  value = 5,
                  min = 0.5,
                  step = 0.5)
@@ -547,7 +547,8 @@ server <- function(input, output, session) {
                col = "black",
                label = Labs[1:length(LabNum)]) +
       labs(title = Name) +
-      theme(plot.title = element_text(hjust = 0.5))
+      theme(plot.title = element_text(hjust = 0.5)) +
+      ylab("Cell counts")
   })
   
   # Proxys for data replacement
@@ -783,8 +784,8 @@ server <- function(input, output, session) {
       # Rename phase G1 and G2 in the summary data frame
       colnames(Df$Sum)[5] <- "Intensity G1"
       colnames(Df$Sum)[6] <- "Intensity G2"
-      colnames(Df$Sum)[10] <- "Ploidy Mean"
-      colnames(Df$Sum)[11] <- "Ploidy Rounded"
+      colnames(Df$Sum)[10] <- paste(input$InType, "mean")
+      colnames(Df$Sum)[11] <- paste(input$InType, "rounded")
       # Rearrange data frame order and remove ploidy inferred from G1 and G2 peaks (columns 8 and 9)
       Df$Sum <- Df$Sum[,c(1,7,2:6,10,11)]
       # Final output data frame
@@ -833,7 +834,8 @@ server <- function(input, output, session) {
                    col = "black",
                    label = Labs[1:length(LabNum)]) +
           labs(title = Name) +
-          theme(plot.title = element_text(hjust = 0.5))
+          theme(plot.title = element_text(hjust = 0.5)) +
+          ylab("Cell counts")
         # Save plot in list
         PlotLs[[i]] <- Pl
       }

@@ -45,4 +45,5 @@ These are the libraries required to run MuPET-Flow. Here we provide links to the
 <!--
 Pending
 A minimum of two different standards is required, but more are recommended.
+Select minimun cell counts to call peak, this removes noise
  -->
