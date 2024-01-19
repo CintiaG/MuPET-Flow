@@ -2,7 +2,7 @@
 
 Created: January 30, 2023
 
-Updated: January 16, 2024
+Updated: January 19, 2024
 
 Authors: Gómez-Muñoz, C.*
 
@@ -13,6 +13,9 @@ Authors: Gómez-Muñoz, C.*
 ## Introduction
 
 MuPET-Flow is a Shiny app intended to analyze flow cytometry data to produce fluorescence histograms, estimate peaks' intensity and calculate ploidy using known standards.
+
+
+![](images/MuPET-Flow_Screenshot.png)
 
 We will update the app description shortly. Feel free to report any bugs you encounter.
 
@@ -25,6 +28,8 @@ gh repo clone CintiaG/MuPET-Flow
 ```
 
 `app.R` file needs to be run in **RStudio** by clicking the “Run App” button.
+
+
 
 
 ### Pre-requisites

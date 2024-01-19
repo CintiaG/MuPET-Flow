@@ -190,7 +190,7 @@ server <- function(input, output, session) {
   # Select minimun number of events
   output$UiEveMin <- renderUI({
     numericInput(inputId = "InMinEve",
-                 label = "Select minimun cell counts to call a peak",
+                 label = "Select minimun cell count to call a peak",
                  value = 5,
                  min = 0.5,
                  step = 0.5)
@@ -225,7 +225,7 @@ server <- function(input, output, session) {
     })
   })
   
-  # Display the last used parameters when changing sample 
+  # Display the last used parameters when changing sample
   # Last used channel
   observeEvent(input$InSample, {
     req(InitDf())
@@ -548,7 +548,7 @@ server <- function(input, output, session) {
                label = Labs[1:length(LabNum)]) +
       labs(title = Name) +
       theme(plot.title = element_text(hjust = 0.5)) +
-      ylab("Cell counts")
+      ylab("Cell count")
   })
   
   # Proxys for data replacement
@@ -835,7 +835,7 @@ server <- function(input, output, session) {
                    label = Labs[1:length(LabNum)]) +
           labs(title = Name) +
           theme(plot.title = element_text(hjust = 0.5)) +
-          ylab("Cell counts")
+          ylab("Cell count")
         # Save plot in list
         PlotLs[[i]] <- Pl
       }
