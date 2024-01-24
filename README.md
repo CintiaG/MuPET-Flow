@@ -45,9 +45,9 @@ These are the libraries required to run MuPET-Flow. Here we provide links to the
 
 Once **MuPET-Flow** is downloaded from GitHub and all the required libraries are installed, the file `app.R` needs to be opened in **RStudio**.
 
-1) Run by clicking the “Run App” button in RStudio (highlighted with a red rectangle in the image below).
-2) Click on the 'Browse' button to upload the FCS files.
-3) Navigate to the appropriate directory. Example data should be within the same directory of **MuPET-Flow** (`path_to_MuPET-Flow/example_data/Sc_dataset_rep1`).
+1. Run by clicking the “Run App” button in RStudio (highlighted with a red rectangle in the image below).
+2. Click on the "Browse" button to upload the FCS files.
+3. Navigate to the appropriate directory. Example data should be within the same directory of **MuPET-Flow** (`path_to_MuPET-Flow/example_data/Sc_dataset_rep1`).
 
 ![](images/RunApp_Screenshot.png)
 ![](images/Browse_Screenshot.png)
