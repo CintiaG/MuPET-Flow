@@ -1,8 +1,8 @@
-# MuPET-Flow: Multiple Ploidy Estimation Tool from Flow Cytometry data
+# MuPET-Flow: Multiple Ploidy Estimation Tool from Flow cytometry data
 
 Created: January 30, 2023
 
-Updated: January 19, 2024
+Updated: January 24, 2024
 
 Authors: Gómez-Muñoz, C.*
 
@@ -19,7 +19,7 @@ MuPET-Flow is a Shiny app intended to analyze flow cytometry data to produce flu
 
 We will update the app description shortly. Feel free to report any bugs you encounter.
 
-## Installation
+## Installation and pre-requisites
 
 MuPET-Flow can be installed by downloading the files on this repository manually or via **GitHub CLI**:
 
@@ -27,15 +27,9 @@ MuPET-Flow can be installed by downloading the files on this repository manually
 gh repo clone CintiaG/MuPET-Flow
 ```
 
-`app.R` file needs to be run in **RStudio** by clicking the “Run App” button.
-
-
-
-
-### Pre-requisites
-
 These are the libraries required to run MuPET-Flow. Here we provide links to their source or installation instructions.
 
+* [RStudio](https://posit.co/download/rstudio-desktop/)
 * [shiny](https://shiny.posit.co/r/getstarted/shiny-basics/lesson1/index.html)
 * [shinythemes](https://rstudio.github.io/shinythemes/)
 * [flowCore](https://bioconductor.org/packages/release/bioc/html/flowCore.html)
@@ -47,8 +41,19 @@ These are the libraries required to run MuPET-Flow. Here we provide links to the
 * [gridExtra](https://cran.r-project.org/web/packages/gridExtra/index.html)
 * [markdown](https://cran.r-project.org/web/packages/markdown/index.html)
 
+### How to run MuPET-Flow
+
+Once **MuPET-Flow** is downloaded from GitHub and all the required libraries are installed, the file `app.R` needs to be opened in **RStudio**.
+
+1) Run by clicking the “Run App” button in RStudio (highlighted with a red rectangle in the image below).
+2) Click on the 'Browse' button to upload the FCS files.
+3) Navigate to the appropriate directory. Example data should be within the same directory of **MuPET-Flow** (`path_to_MuPET-Flow/example_data/Sc_dataset_rep1`).
+
+![](images/RunApp_Screenshot.png)
+![](images/Browse_Screenshot.png)
+
 <!--
 Pending
 A minimum of two different standards is required, but more are recommended.
-Select minimun cell counts to call peak, this removes noise
+Select minimum cell counts to call peak, this removes noise
  -->
