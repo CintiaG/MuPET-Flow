@@ -2,7 +2,7 @@
 
 Created: January 30, 2023
 
-Updated: January 24, 2024
+Updated: April 12, 2024
 
 Authors: Gómez-Muñoz, C.*
 
@@ -51,6 +51,10 @@ Once **MuPET-Flow** is downloaded from GitHub and all the required libraries are
 
 ![](images/RunApp_Screenshot.png)
 ![](images/Browse_Screenshot.png)
+
+### Recent updates.
+
+**April 12, 2024:** Significant change in histogram calculation: All files are now converted to histograms ranging from 0 to 1000, as opposed to using the bin scale of the instrument. This modification enables quicker processing of files from newer instruments capable of storing data in larger bin sizes.
 
 <!--
 Pending

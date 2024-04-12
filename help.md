@@ -2,6 +2,10 @@
 
 Sorry, we are in construction...
 
+### Recent updates.
+
+**April 12, 2024:** Significant change in histogram calculation: All files are now converted to histograms ranging from 0 to 1000, as opposed to using the bin scale of the instrument. This modification enables quicker processing of files from newer instruments capable of storing data in larger bin sizes.
+
 ### Known issues
 
 * App works deletes `.fcs` and `.FCS` extensions from files names, and removes everything after a space to generate the sample name. If after this previous process duplicated names are generated, the app will crash, thus it is better to name the files with unique names
