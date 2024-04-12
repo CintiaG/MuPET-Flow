@@ -399,7 +399,7 @@ server <- function(input, output, session) {
     Exp <- Exp[Exp >= 1]
     Exp <- Exp[Exp <= MaxBreaks]
     # Calculate histogram
-    Hist <- hist(Exp, breaks = 1:MaxBreaks, plot = FALSE)
+    Hist <- hist(Exp, breaks = 1000, plot = FALSE)
     # Counts is the y histogram variable
     Counts <- Hist$counts
     # Index is the x histogram variable
