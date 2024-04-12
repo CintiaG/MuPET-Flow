@@ -548,7 +548,8 @@ server <- function(input, output, session) {
                label = Labs[1:length(LabNum)]) +
       labs(title = Name) +
       theme(plot.title = element_text(hjust = 0.5)) +
-      ylab("Cell count")
+      ylab("Cell count") +
+      xlim(0, 1000)
   })
   
   # Proxys for data replacement
@@ -835,7 +836,8 @@ server <- function(input, output, session) {
                    label = Labs[1:length(LabNum)]) +
           labs(title = Name) +
           theme(plot.title = element_text(hjust = 0.5)) +
-          ylab("Cell count")
+          ylab("Cell count") +
+          xlim(0, 1000)
         # Save plot in list
         PlotLs[[i]] <- Pl
       }
