@@ -175,9 +175,9 @@ server <- function(input, output, session) {
     numericInput(inputId = "InWindow",
                  label = "Adjust window width",
                  value = 50,
-                 min = 1,
+                 min = 0,
                  max = 1000,
-                 step = 10)
+                 step = 5)
   })
   # Select maximum number of peaks
   output$UiPeaksNum <- renderUI({
@@ -258,9 +258,9 @@ server <- function(input, output, session) {
       numericInput(inputId = "InWindow",
                    label = "Adjust window",
                    value = Df$DataPeaks$Window[SampNum],
-                   min = 1,
+                   min = 0,
                    max = 1000,
-                   step = 10)
+                   step = 5)
     })
   })
   # Last selected peaks
