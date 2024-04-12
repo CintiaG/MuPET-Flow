@@ -119,7 +119,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                         # Table results 3
                                         DT::dataTableOutput("ResDf3"),
                                         # Download data
-                                        downloadButton("DownloadData", "Save table"),
+                                        downloadButton("DownloadData", "Save Table"),
                                       ),
                                     )
                                     
@@ -339,10 +339,10 @@ server <- function(input, output, session) {
   output$UiPlotParam <- renderUI({
     PlotParamType <- c("Sel", "Sel", "Num", "Num", "Num", "Num")
     PlotParamList <- c("Device", "Units", "Grid", "Width", "Height", "Dpi")
-    PlotParamChoi <- list(c("png", "tiff"), c("in", "cm", "mm", "px"), NA, NA, NA, NA)
+    PlotParamChoi <- list(c("tiff", "png"), c("in", "cm", "mm", "px"), NA, NA, NA, NA)
     PlotParamVal <- c(NA, NA, 4, 300, 200, 300)
     PlotParamStep <- c(NA, NA, 1, 50, 50, 50)
-    PlotParamSel <- c("png", "mm")
+    PlotParamSel <- c("tiff", "mm")
     Ls <- list()
     for (i in 1:length(PlotParamList)){
       if (PlotParamType[i] == "Sel"){
