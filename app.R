@@ -398,6 +398,8 @@ server <- function(input, output, session) {
     # Filter low and high values to fit bins in histogram
     Exp <- Exp[Exp >= 1]
     Exp <- Exp[Exp <= MaxBreaks]
+    # Add pseudo count to superior and inferior limit to anchor histogram
+    Exp <- c(1, Exp, MaxBreaks)
     # Calculate histogram
     Hist <- hist(Exp, breaks = 1000, plot = FALSE)
     # Counts is the y histogram variable
