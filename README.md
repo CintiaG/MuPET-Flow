@@ -2,7 +2,7 @@
 
 Created: January 30, 2023
 
-Updated: June 14, 2024
+Updated: September 9, 2024
 
 Authors: Gómez-Muñoz, C.*
 
@@ -47,7 +47,7 @@ Once **MuPET-Flow** is downloaded from GitHub and all the required libraries are
 
 1. Run by clicking the “Run App” button in RStudio (highlighted with a red rectangle in the image below).
 2. Click on the "Browse" button to upload the FCS files.
-3. Navigate to the appropriate directory. Example data should be within the same directory of **MuPET-Flow** (`path_to_MuPET-Flow/example_data/Sc_dataset_rep1`).
+3. Navigate to the appropriate directory. Example data should be within the same directory of **MuPET-Flow** (`path_to_MuPET-Flow/example_data/Sc_dataset_rep1`). Upload these files and visualize them in the correct channel, which for this experiment is FL4-A.
 
 ![](images/RunApp_Screenshot.png)
 ![](images/Browse_Screenshot.png)
