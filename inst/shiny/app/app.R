@@ -122,7 +122,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                         downloadButton("DownloadData", "Save Table"),
                                       ),
                                     )
-                                    
+
                            ),
                            # Panel 4
                            tabPanel("Help",
@@ -133,7 +133,7 @@ ui <- fluidPage(theme = shinytheme("united"),
 
 # ------------------------------------------------------------------------------------------------------------------- #
 
-# Define server function  
+# Define server function
 server <- function(input, output, session) {
   # Session
   session$onSessionEnded(function() {
@@ -195,7 +195,7 @@ server <- function(input, output, session) {
                  min = 0.5,
                  step = 0.5)
   })
-  
+
   # Update UI when when files are uploaded
   observeEvent(input$InFiles, {
     req(InitDf())
@@ -213,7 +213,7 @@ server <- function(input, output, session) {
                   selected = names(InitDf()$Files[[1]])[1])
     })
   })
-  
+
 
   # Update UI peaks when new channel is selected
   observeEvent(input$InChan, {
@@ -224,7 +224,7 @@ server <- function(input, output, session) {
                          selected = c(PlotPoints()$MaxIndex[1], PlotPoints()$MaxIndex[2]))
     })
   })
-  
+
   # Display the last used parameters when changing sample
   # Last used channel
   observeEvent(input$InSample, {
@@ -275,7 +275,7 @@ server <- function(input, output, session) {
                          selected = PlotPoints()$MaxIndex[LabNum])
     })
   })
-  
+
   # Panel 2 inputs
   # Select number of standards
   output$UiCtrlsNum <- renderUI({
@@ -327,7 +327,7 @@ server <- function(input, output, session) {
       Ls
     })
   })
-  
+
   # Panel 3 inputs
   # Render compilation of all histograms
   output$HisPlotAll <- renderPlot({
@@ -362,7 +362,7 @@ server <- function(input, output, session) {
           style = "display: inline-block;vertical-align:top; width: 150px;",
         )
       }
-      
+
     }
     Ls
   })
@@ -375,7 +375,7 @@ server <- function(input, output, session) {
       ggsave(file, plot = grid.arrange(grobs = AllPl(), ncol = input$InGrid), device = input$InDevice, width = input$InWidth, units = input$InUnits, height = input$InHeight, dpi = input$InDpi)
     }
   )
-  
+
   # Download data
   output$DownloadData <- downloadHandler(
     filename <- function() {
@@ -385,7 +385,7 @@ server <- function(input, output, session) {
       write.csv(Df$Sum, file, row.names = FALSE)
     }
   )
-  
+
   # Define specific functions for peaks calculation
   # Lines
   GetLine <- function(File, ChanNum, Span){
@@ -413,7 +413,7 @@ server <- function(input, output, session) {
     # Create plotting data frame
     data.frame(Fluorescence = Index, Count = FitLine)
   }
-  
+
   # Points
   GetPoints <- function(PlotLine, Width){
     # The window to calculate the maximum
@@ -432,13 +432,13 @@ server <- function(input, output, session) {
     # Create points data frame
     data.frame(MaxIndex = MaxIndex, Intensity = Intensity)
   }
-  
+
   # Peak calculations
   # Get initial files and information
   InitDf <- eventReactive(input$InFiles, {
     # Code used to evaluate run time (START)
     timing_result <- system.time({
-      
+
       FilesLs <- list()
       Channels <- NULL
       Smoothings <- NULL
@@ -448,7 +448,7 @@ server <- function(input, output, session) {
       G1s <- NULL
       G2s <- NULL
       Names <- NULL
-      
+
       # Read FCS files and calculate initial information
       for(i in 1:length(input$InFiles[, 1])){
         FilesLs[[i]] <- read.FCS(input$InFiles[[i, 'datapath']], emptyValue = FALSE, alter.names = TRUE)
@@ -462,17 +462,17 @@ server <- function(input, output, session) {
         G1s[i] <- PointLs[[i]]$MaxIndex[1]
         G2s[i] <- PointLs[[i]]$MaxIndex[2]
       }
-      
+
       names(FilesLs) <- Names
     })
     # Code used to evaluate run time (END)
     print("Upload time")
     print(timing_result)
-    
+
     # Return a list with the information
     list(Files = FilesLs, Channels = Channels, Smoothings = Smoothings, Windows = Windows, G1s = G1s, G2s = G2s)
   })
-  
+
   # Create reactive values to modify initially calculated data (It had to be created as reactive value to be modified via proxy)
   Df <- reactiveValues(DataPeaks = NULL)
   # Copy information form initial data frame
@@ -484,11 +484,11 @@ server <- function(input, output, session) {
                                Window = InitDf()$Windows,
                                G1 = InitDf()$G1s,
                                G2 = InitDf()$G2s)
-    
+
     output$ResDf1 <- DT::renderDataTable(isolate(Df$DataPeaks),
                                          editable = FALSE)
   })
-  
+
   # Create plot line
   PlotLine <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan), {
     req(InitDf())
@@ -501,7 +501,7 @@ server <- function(input, output, session) {
     # Return Line
     GetLine(File = File, ChanNum = ChanNum, Span = Df$DataPeaks[SampNum, 3])
   })
-  
+
   # Create plot points
   PlotPoints <- eventReactive(c(input$InSample, input$InSmooth, input$InWindow, input$InChan, input$InMaxPeaks, input$InMinEve), {
     req(InitDf())
@@ -518,7 +518,7 @@ server <- function(input, output, session) {
       need(input$InFiles != "", "Please upload files to obtain histograms"),
     )
   })
-  
+
   output$Warn1 <- renderPrint({
     WarnHis1()
   })
@@ -530,7 +530,7 @@ server <- function(input, output, session) {
     req(PlotLine())
     req(input$InMaxPeaks)
     req(input$InMinEve)
-    
+
     SampNum <- grep(input$InSample, names(InitDf()$Files))
     # Get name for plotting and table
     Name <- names(InitDf()$Files)[SampNum]
@@ -553,7 +553,7 @@ server <- function(input, output, session) {
       ylab("Cell count") +
       xlim(0, 1000)
   })
-  
+
   # Proxys for data replacement
   # Channel
   observeEvent(input$InChan, {
@@ -609,7 +609,7 @@ server <- function(input, output, session) {
     Proxy <- DT::dataTableProxy('ResDf1')
     DT::replaceData(Proxy, Df$DataPeaks)
   })
-  
+
   # Regression calculations
   # Warning to incorrect execution of regression
   WarnReg2 <- reactive({
@@ -618,30 +618,30 @@ server <- function(input, output, session) {
       need(input$InCtrlSample2 != "", "Please provide at least two standards to perform regression"),
     )
   })
-  
+
   output$Warn2 <- renderPrint({
     WarnReg2()
   })
-  
+
   WarnReg3 <- eventReactive(input$InReg, {
     validate(
       need(input$InCtrlSample2 != "", "Please provide at least two standards to perform regression"),
       need(length(input$InPeaksPlot) != 0, "No peaks detected"),
     )
   })
-  
+
   output$Warn3 <- renderPrint({
     WarnReg3()
   })
-  
+
   # Create linear regression model
   observeEvent(input$InReg, {
     # Code used to evaluate run time (START)
     timing_result <- system.time({
-      
+
       req(input$InCtrlSample2)
       req(input$InPeaksPlot)
-      
+
       # Select required information from DataPeaks
       Df$DataReg <- Df$DataPeaks[,c(1,5,6)]
       # Combine G1 and G2 fluorescent intensity
@@ -703,7 +703,7 @@ server <- function(input, output, session) {
       Df$Tests$Ploidy <- predict(Mod, Df$Tests) %>% round(2)
       # Combine results
       Df$Res <- rbind(Df$Ctrls, Df$Tests)
-      
+
       # Before rendering data frame, change row names and column order
       rownames(Df$Res) <- 1:nrow(Df$Res)
       Df$Res <- Df$Res[,c(1, 4, 2, 3, 5)]
@@ -717,7 +717,7 @@ server <- function(input, output, session) {
       RsquaredXcoord <- Df$Res$Intensity
       RsquaredXcoord <- RsquaredXcoord[!is.na(RsquaredXcoord)]
       RsquaredXcoord <- min(RsquaredXcoord)
-      
+
       RsquaredYcoord <- Df$Res$Ploidy
       RsquaredYcoord <- RsquaredYcoord[!is.na(RsquaredYcoord)]
       RsquaredYcoord <- max(RsquaredYcoord)
@@ -741,17 +741,17 @@ server <- function(input, output, session) {
       need(input$InFiles != "", "Please peform regression firts"),
     )
   })
-  
+
   output$Warn4 <- renderPrint({
     WarnSum4()
   })
-  
+
   WarnSum5 <- eventReactive(input$InSum, {
     validate(
       need(Df$Res != "", "No regression found")
     )
   })
-  
+
   output$Warn5 <- renderPrint({
     WarnSum5()
   })
@@ -759,7 +759,7 @@ server <- function(input, output, session) {
   observeEvent(input$InSum, {
     # Code used to evaluate run time (START)
     timing_result <- system.time({
-      
+
       req(InitDf())
       req(Df$Res)
       # Copy regression results data frame
@@ -799,7 +799,7 @@ server <- function(input, output, session) {
     print("Peaks calculation time")
     print(timing_result)
   })
-  
+
   # Plot all histograms
   AllPl <- eventReactive(input$InSum, {
     # Code used to evaluate run time (START)
@@ -847,14 +847,14 @@ server <- function(input, output, session) {
     # Code used to evaluate run time (END)
     print("Plots generation time")
     print(timing_result)
-    
+
     # Return list of plots
     PlotLs
   })
-  
+
   # Panel 4 help
   output$textWithHTML <- renderUI({
-    HTML(markdown::markdownToHTML('help.md', template = FALSE))
+    HTML(markdown::markdownToHTML('help/help.md', template = FALSE))
   })
 }
 
