@@ -17,4 +17,5 @@ Imports:
     gridExtra,
     markdown,
     shiny,
+    shinythemes,
     zoo
