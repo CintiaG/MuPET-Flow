@@ -4,14 +4,13 @@
 #' @export
 #' @import shiny
 #' @import shinythemes
-#' @import flowCore
 #' @import zoo
 #' @import ggplot2
 #' @import DT
-#' @import tidyverse
 #' @import ggrepel
 #' @import gridExtra
 #' @import markdown
+#' @import BiocManager
 runMuPETFlow <- function(){
   appDir <- system.file("shiny", "app", package = "MuPETFlow")
   if(appDir == ""){

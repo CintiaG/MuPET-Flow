@@ -4,6 +4,16 @@
 # flow cytometer histograms        #
 ####################################
 
+# Handel Bioconductor Dependencies Programmatically
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("cytolib")
+
+if (!requireNamespace("flowCore", quietly = TRUE)) {
+  BiocManager::install("flowCore")
+}
+
 # Load R packages
 library(shiny)
 library(shinythemes)
