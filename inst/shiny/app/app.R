@@ -786,7 +786,7 @@ server <- function(input, output, session) {
       # Divide G2 by 2
       Df$Sum$G2 <- round(Df$Sum$G2 / 2, 2)
       # Obtain mean of G1 and G2
-      Df$Sum <- mutate(Df$Sum, Mean = round(rowMeans(select(Df$Sum, G1, G2), na.rm = TRUE), 2))
+      Df$Sum <- dplyr::mutate(Df$Sum, Mean = round(rowMeans(select(Df$Sum, G1, G2), na.rm = TRUE), 2))
       # Obtain rounded ploidy
       Df$Sum$Rounded <- round(Df$Sum$Mean, 0)
       # Rename phase G1 and G2 in the second data frame

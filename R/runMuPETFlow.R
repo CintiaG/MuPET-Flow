@@ -12,7 +12,7 @@
 #' @import markdown
 #' @import BiocManager
 #' @import tidyr
-#' @import dplyr
+#' @importFrom dplyr mutate
 runMuPETFlow <- function(){
   appDir <- system.file("shiny", "app", package = "MuPETFlow")
   if(appDir == ""){
