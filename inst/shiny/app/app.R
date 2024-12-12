@@ -11,7 +11,7 @@ if (!require("BiocManager", quietly = TRUE))
 BiocManager::install("cytolib")
 
 if (!requireNamespace("flowCore", quietly = TRUE)) {
-  BiocManager::install("flowCore")
+  BiocManager::install("flowCore", update = FALSE)
 }
 
 # Load R packages
