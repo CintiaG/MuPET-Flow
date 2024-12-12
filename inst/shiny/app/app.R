@@ -24,6 +24,7 @@ library(DT)
 library(ggrepel)
 library(gridExtra)
 library(markdown)
+library(tidyr)
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
