@@ -8,7 +8,9 @@
 if (!require("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
-BiocManager::install("cytolib")
+if (!requireNamespace("flowCore", quietly = TRUE)) {
+  BiocManager::install("cytolib", update = FALSE)
+}
 
 if (!requireNamespace("flowCore", quietly = TRUE)) {
   BiocManager::install("flowCore", update = FALSE)
