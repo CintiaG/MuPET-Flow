@@ -536,6 +536,7 @@ server <- function(input, output, session) {
 
   # Create reactive values to modify initially calculated data (It had to be created as reactive value to be modified via proxy)
   Df <- reactiveValues(DataPeaks = NULL)
+
   # Copy information form initial data frame
   observeEvent(trigger(), {
     req(InitDf())
@@ -576,7 +577,7 @@ server <- function(input, output, session) {
   # Warning to incorrect execution of regression
   WarnHis1 <- reactive({
     validate(
-      need(input$InFiles != "", "Please upload files to obtain histograms"),
+      need(trigger() != "", "Please upload files to obtain histograms"),
     )
   })
 
