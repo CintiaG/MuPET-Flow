@@ -29,6 +29,9 @@ library(markdown)
 library(tidyr)
 library(dplyr)
 
+# Define example data directory
+example_data_directory <- "../../extdata/"
+
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
                 # App name
