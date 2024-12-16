@@ -586,7 +586,6 @@ server <- function(input, output, session) {
   })
   # Plot data
   output$HisPlot <- renderPlot({
-    req(input$InFiles)
     req(InitDf())
     req(input$InSample)
     req(PlotLine())
