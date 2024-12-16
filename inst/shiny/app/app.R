@@ -30,7 +30,7 @@ library(tidyr)
 library(dplyr)
 
 # Define example data directory
-example_data_directory <- "../../extdata/"
+ExDir <- "../../extdata/"
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
@@ -522,7 +522,7 @@ server <- function(input, output, session) {
       file_list <- input$InFiles$datapath
       file_name <- input$InFiles$name
     } else if (trigger() == "example") {
-      example_files <- list.files(example_data_directory, full.names = TRUE, pattern = "\\.fcs$")
+      example_files <- list.files(ExDir, full.names = TRUE, pattern = "\\.fcs$")
       new_files <- list(
         datapath = example_files,
         name = basename(example_files),
