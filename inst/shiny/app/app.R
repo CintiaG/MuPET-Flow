@@ -537,7 +537,7 @@ server <- function(input, output, session) {
   # Create reactive values to modify initially calculated data (It had to be created as reactive value to be modified via proxy)
   Df <- reactiveValues(DataPeaks = NULL)
   # Copy information form initial data frame
-  observeEvent(input$InFiles, {
+  observeEvent(trigger(), {
     req(InitDf())
     Df$DataPeaks <- data.frame(Sample = names(InitDf()$Files),
                                Channel = InitDf()$Channels,
