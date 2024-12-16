@@ -317,7 +317,7 @@ server <- function(input, output, session) {
                  step = 1)
   })
   # Create ploidy or genome size type of analysis
-  observeEvent(input$InFiles, {
+  observeEvent(trigger(), {
     output$UiType <- renderUI({
       req(input$InNumCtrl)
       radioButtons(inputId = "InType",
@@ -328,7 +328,7 @@ server <- function(input, output, session) {
     })
   })
   # Create select standards
-  observeEvent(input$InFiles, {
+  observeEvent(trigger(), {
     output$UiCtrlsSampleSel <- renderUI({
       req(input$InNumCtrl)
       StandardList <- paste("Standard", 1:input$InNumCtrl)
@@ -343,7 +343,7 @@ server <- function(input, output, session) {
     })
   })
   # Create standards ploidy
-  observeEvent(input$InFiles, {
+  observeEvent(trigger(), {
     output$UiCtrlsPloNum <- renderUI({
       req(input$InNumCtrl)
       PloidyList <- paste(input$InType, 1:input$InNumCtrl)
