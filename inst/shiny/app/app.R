@@ -43,6 +43,14 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       h3("Inputs"),
                                       # Input files
                                       uiOutput("UiFileUp"),
+                                      # HTML instructions to add action button title
+                                      tags$div(
+                                        style = "margin-bottom: 5px;",
+                                        HTML("<strong style='font-size: 14px; '>Or load example data</strong>"),
+                                      ),
+                                      # Run example
+                                      uiOutput("UiExample"),
+                                      HTML("</br>"),
                                       # Select channel
                                       uiOutput("UiChannelSel"),
                                       # Select sample
@@ -163,6 +171,12 @@ server <- function(input, output, session) {
               label = "Upload multiple FCS files",
               multiple = TRUE,
               accept = c(".FCS", ".fcs"))
+  })
+  # Run example
+  output$UiExample <- renderUI({
+    actionButton(inputId = "LoadEx",
+                 ### Maybe chage for others too
+                 label = "Example")
   })
   # Select channel
   output$UiChannelSel <- renderUI({
