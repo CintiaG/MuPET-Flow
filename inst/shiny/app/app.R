@@ -418,6 +418,45 @@ server <- function(input, output, session) {
   )
 
   # Define specific functions for peaks calculation
+  # Peak calculations
+  GetInit <- function(AllFiles, AllNames){
+    # Code used to evaluate run time (START)
+    timing_result <- system.time({
+
+      FilesLs <- list()
+      Channels <- NULL
+      Smoothings <- NULL
+      Windows <- NULL
+      LineLs <- list()
+      PointLs <- list()
+      G1s <- NULL
+      G2s <- NULL
+      Names <- NULL
+
+      # Read FCS files and calculate initial information
+      for(i in 1:length(AllFiles)){
+        FilesLs[[i]] <- read.FCS(AllFiles[i], emptyValue = FALSE, alter.names = TRUE)
+        Name <- sub(" .*", "", sub(".FCS", "", sub(".fcs", "", AllNames[i])))
+        Names <- c(Names, Name)
+        Channels[i] <- names(FilesLs[[i]])[1]
+        Smoothings[i] <- 0.1
+        Windows[i] <- 50
+        LineLs[[i]] <- GetLine(File = FilesLs[[i]], ChanNum = 1, Span = 0.1)
+        PointLs[[i]] <- GetPoints(PlotLine = LineLs[[i]], Width = 50)
+        G1s[i] <- PointLs[[i]]$MaxIndex[1]
+        G2s[i] <- PointLs[[i]]$MaxIndex[2]
+      }
+      names(FilesLs) <- Names
+    })
+
+    # Code used to evaluate run time (END)
+    print("Upload time")
+    print(timing_result)
+
+    # Return a list with the information
+    list(Files = FilesLs, Channels = Channels, Smoothings = Smoothings, Windows = Windows, G1s = G1s, G2s = G2s)
+  }
+
   # Lines
   GetLine <- function(File, ChanNum, Span){
     # Extract and filter expressions
@@ -464,44 +503,35 @@ server <- function(input, output, session) {
     data.frame(MaxIndex = MaxIndex, Intensity = Intensity)
   }
 
-  # Peak calculations
   # Get initial files and information
-  InitDf <- eventReactive(input$InFiles, {
-    # Code used to evaluate run time (START)
-    timing_result <- system.time({
+  trigger <- reactiveVal(NULL)
 
-      FilesLs <- list()
-      Channels <- NULL
-      Smoothings <- NULL
-      Windows <- NULL
-      LineLs <- list()
-      PointLs <- list()
-      G1s <- NULL
-      G2s <- NULL
-      Names <- NULL
+  observeEvent(input$InFiles, {
+    # Set trigger to "upload"
+    trigger("upload")
+  })
 
-      # Read FCS files and calculate initial information
-      for(i in 1:length(input$InFiles[, 1])){
-        FilesLs[[i]] <- read.FCS(input$InFiles[[i, 'datapath']], emptyValue = FALSE, alter.names = TRUE)
-        Name <- sub(" .*", "", sub(".FCS", "", sub(".fcs", "", input$InFiles$name[i])))
-        Names <- c(Names, Name)
-        Channels[i] <- names(FilesLs[[i]])[1]
-        Smoothings[i] <- 0.1
-        Windows[i] <- 50
-        LineLs[[i]] <- GetLine(File = FilesLs[[i]], ChanNum = 1, Span = 0.1)
-        PointLs[[i]] <- GetPoints(PlotLine = LineLs[[i]], Width = 50)
-        G1s[i] <- PointLs[[i]]$MaxIndex[1]
-        G2s[i] <- PointLs[[i]]$MaxIndex[2]
-      }
+  observeEvent(input$LoadEx, {
+    # Set trigger to "example"
+    trigger("example")
+  })
 
-      names(FilesLs) <- Names
-    })
-    # Code used to evaluate run time (END)
-    print("Upload time")
-    print(timing_result)
-
-    # Return a list with the information
-    list(Files = FilesLs, Channels = Channels, Smoothings = Smoothings, Windows = Windows, G1s = G1s, G2s = G2s)
+  InitDf <- eventReactive(trigger(), {
+    if (trigger() == "upload") {
+      req(input$InFiles)
+      file_list <- input$InFiles$datapath
+      file_name <- input$InFiles$name
+    } else if (trigger() == "example") {
+      example_files <- list.files(example_data_directory, full.names = TRUE, pattern = "\\.fcs$")
+      new_files <- list(
+        datapath = example_files,
+        name = basename(example_files),
+        size = file.info(example_files)$size,
+        type = rep("fcs", length(example_files)))
+      file_list <- new_files$datapath
+      file_name <- new_files$name
+    }
+    GetInit(file_list, file_name)
   })
 
   # Create reactive values to modify initially calculated data (It had to be created as reactive value to be modified via proxy)
