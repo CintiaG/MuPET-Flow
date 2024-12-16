@@ -675,7 +675,7 @@ server <- function(input, output, session) {
   # Warning to incorrect execution of regression
   WarnReg2 <- reactive({
     validate(
-      need(input$InFiles != "", "Please upload files to perform regression"),
+      need(trigger() != "", "Please upload files to perform regression"),
       need(input$InCtrlSample2 != "", "Please provide at least two standards to perform regression"),
     )
   })
