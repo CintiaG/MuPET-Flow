@@ -103,7 +103,8 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       ),
                                       # Perform regression and prediction
                                       HTML("</br>"),
-                                      actionButton(inputId = "InReg", label = "Regression"),
+                                      actionButton(inputId = "InReg",
+                                                   label = "Regression"),
                                       # Regression summary
                                       verbatimTextOutput("RegText"),
                                     ),
@@ -125,7 +126,8 @@ ui <- fluidPage(theme = shinytheme("united"),
                                     fluidPage(
                                       fluidRow(
                                         # Obtain summary
-                                        actionButton(inputId = "InSum", label = "Preview"),
+                                        actionButton(inputId = "InSum",
+                                                     label = "Preview"),
                                         # Histogram of all samples
                                         verbatimTextOutput("Warn4"),
                                         verbatimTextOutput("Warn5"),
@@ -175,7 +177,6 @@ server <- function(input, output, session) {
   # Run example
   output$UiExample <- renderUI({
     actionButton(inputId = "LoadEx",
-                 ### Maybe chage for others too
                  label = "Example")
   })
   # Select channel
