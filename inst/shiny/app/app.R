@@ -228,7 +228,7 @@ server <- function(input, output, session) {
   })
 
   # Update UI when when files are uploaded
-  observeEvent(input$InFiles, {
+  observeEvent(trigger(), {
     req(InitDf())
     # Display sample names
     output$UiSampleSel <- renderUI({
@@ -241,7 +241,7 @@ server <- function(input, output, session) {
       selectInput(inputId = "InChan",
                   label = "Select a channel",
                   choices = names(InitDf()$Files[[1]]),
-                  selected = names(InitDf()$Files[[1]])[1])
+                  selected = names(InitDf()$Files[[1]])[ifelse(trigger() == "example", 20, 1)])
     })
   })
 
