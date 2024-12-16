@@ -312,7 +312,7 @@ server <- function(input, output, session) {
   output$UiCtrlsNum <- renderUI({
     numericInput(inputId = "InNumCtrl",
                  label = "Select number of standards",
-                 value = ifelse(length(input$InFiles[, 1]) < 4, length(input$InFiles[, 1]), 4),
+                 value = ifelse(length(InitDf()) < 4, length(InitDf()), 4),
                  min = 1,
                  step = 1)
   })
