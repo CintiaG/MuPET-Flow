@@ -799,7 +799,7 @@ server <- function(input, output, session) {
   # Warning to incorrect execution of summary
   WarnSum4 <- reactive({
     validate(
-      need(input$InFiles != "", "Please peform regression firts"),
+      need(trigger() != "", "Please perform regression first"),
     )
   })
 
