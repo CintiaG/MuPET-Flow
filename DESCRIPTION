@@ -7,6 +7,7 @@ Authors@R:
 Description: MuPETFlow is a graphical user interface tool to estimate ploidy from DNA cells stained with fluorescent dyes and analyzed by flow cytometry. It automates file uploading and configuration, peak fluorescence intensity detection, multiple histogram visualizations, peak error curation, ploidy and genome size calculations, and easy results export.
 License: GPL (>= 3)
 Encoding: UTF-8
+Date/Publication: 2024-12-16
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 

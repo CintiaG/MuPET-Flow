@@ -31,11 +31,11 @@
 #' If any errors are detected, you can go back to the Peaks tab to review the parameters. Note that the regression must also be re-done after parameter adjustments.
 #'
 #' @export
-#' @import shiny
+#' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #' @import shinythemes
 #' @import zoo
 #' @import ggplot2
-#' @import DT
+#' @importFrom DT dataTableOutput renderDataTable
 #' @import ggrepel
 #' @import gridExtra
 #' @import markdown
