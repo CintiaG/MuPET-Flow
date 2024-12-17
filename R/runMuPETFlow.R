@@ -42,6 +42,13 @@
 #' @import BiocManager
 #' @import tidyr
 #' @importFrom dplyr mutate
+#' @examples
+#' if (interactive()) {
+#'   # Example: Check that the function exists and runs
+#'   runMuPETFlow()
+#' } else {
+#'   message("This is a Shiny app wrapper. Run interactively to use.")
+#' }
 runMuPETFlow <- function(){
   appDir <- system.file("shiny", "app", package = "MuPETFlow")
   if(appDir == ""){
