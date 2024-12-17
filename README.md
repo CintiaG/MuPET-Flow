@@ -74,7 +74,7 @@ After launching the app, you can follow the app flow, which is divided into thre
 * **Select number of standards:** A minimum of two different standards is required, but more are recommended.
 * **Select standard samples and values:** This is the ploidy or genome size of your standards.
 
-## Summary
+### Summary
 * **Results preview:** Creates a compiled figure with histograms for all samples.
 * **Save plot:** Saves the histograms in either PNG or TIFF format with customizable size and quality. Optionally, you can control the grid layout.
 * **Save table:** Exports the parameters used and the estimated ploidy or genome size as a CSV file.
