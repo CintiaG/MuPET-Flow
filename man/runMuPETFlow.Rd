@@ -7,14 +7,16 @@
 runMuPETFlow()
 }
 \description{
-This function launches the Shiny app included in this package.
+This function launches the Shiny app included in MuPET-Flow.
 The first time the tool launches, it will try to install additional \strong{Bioconductor} dependencies that are not managed via \code{install.packages()}. This process might take a few minutes.
 Once the application is launched, you can either:
 \enumerate{
 \item Load your experimental data.
 \item Run an in-app example by clicking the 'Example' button.
-}<br>
+}\if{html}{\out{
+<br>
 <br>For the first case, selecting the channel where the data was acquired is mandatory. For the second case, the example channel `FL4-A` is automatically detected for demonstration purposes.
+}}
 }
 \details{
 After launching the app, you can follow the app flow, which is divided into three tabs: \emph{\strong{Peaks}}, \emph{\strong{Regression}} and \emph{\strong{Summary}}.  Below is a general description of the options available in each tab:
@@ -41,8 +43,10 @@ After launching the app, you can follow the app flow, which is divided into thre
 \item \strong{Results preview:} Creates a compiled figure with histograms for all samples.
 \item \strong{Save plot:} Saves the histograms in either PNG or TIFF format with customizable size and quality. Optionally, you can control the grid layout.
 \item \strong{Save table:} Exports the parameters used and the estimated ploidy or genome size as a CSV file.
-}<br>
-If any errors are detected, you can go back to the Peaks tab to review the parameters. Note that the regression must also be re-done after parameter adjustments.
+}\if{html}{\out{
+<br>
+If any errors are detected in the analyzed samples, you can go back to the Peaks tab to review the parameters. Note that the regression must also be re-done after parameter adjustments.
+}}
 
 }
 }

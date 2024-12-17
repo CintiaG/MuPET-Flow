@@ -1,6 +1,6 @@
 #' Run the MuPET-Flow app
 #'
-#' This function launches the Shiny app included in this package.
+#' This function launches the Shiny app included in MuPET-Flow.
 #' The first time the tool launches, it will try to install additional **Bioconductor** dependencies that are not managed via `install.packages()`. This process might take a few minutes.
 #' Once the application is launched, you can either:
 #' 1. Load your experimental data.
@@ -28,7 +28,7 @@
 #' * **Save table:** Exports the parameters used and the estimated ploidy or genome size as a CSV file.
 #'
 #' <br>
-#' If any errors are detected, you can go back to the Peaks tab to review the parameters. Note that the regression must also be re-done after parameter adjustments.
+#' If any errors are detected in the analyzed samples, you can go back to the Peaks tab to review the parameters. Note that the regression must also be re-done after parameter adjustments.
 #'
 #' @export
 #' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
