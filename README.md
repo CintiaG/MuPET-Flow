@@ -1,4 +1,4 @@
-# MuPET-Flow: Multiple Ploidy Estimation Tool for all species compatible with Flow cytometry
+# MuPET-Flow: Multiple Ploidy Estimation Tool for all Species Compatible with Flow Cytometry
 
 Created: January 30, 2023
 

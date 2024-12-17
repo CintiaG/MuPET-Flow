@@ -1,6 +1,6 @@
 ## Help
 
-### Welcome to MuPET-Flow! Multiple Ploidy Estimation Tool for all species compatible with Flow cytometry.
+### Welcome to MuPET-Flow! Multiple Ploidy Estimation Tool for all Species Compatible with Flow Cytometry.
 
 MuPET-Flow is a graphical user interface tool to estimate ploidy from DNA cells stained with fluorescent dyes and analyzed by flow cytometry. It automates file uploading and configuration, peak fluorescence intensity detection, multiple histogram visualizations, peak error curation, ploidy and genome size calculations, and easy results export.
 
