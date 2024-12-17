@@ -5,7 +5,7 @@ Authors@R:
     c(person(given = "Cintia", family = "Gomez-Munoz", email = "cintia.gomez_munoz@sorbonne-universite.fr", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2820-9810")),
            person(given = "Gilles", family = "Fischer", email = "gilles.fischer@sorbonne-universite.fr", role = c("aut"),
-           comment = c(ORCID = "0000-0001-5732-2682"))
+           comment = c(ORCID = "0000-0001-5732-2682")))
 Description: MuPETFlow is a graphical user interface tool to estimate ploidy from DNA cells stained with fluorescent dyes and analyzed by flow cytometry. It automates file uploading and configuration, peak fluorescence intensity detection, multiple histogram visualizations, peak error curation, ploidy and genome size calculations, and easy results export.
 License: GPL (>= 3)
 Encoding: UTF-8

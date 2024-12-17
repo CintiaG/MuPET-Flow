@@ -33,7 +33,7 @@ After launching the app, you can follow the app flow, which is divided into thre
 \subsection{Regression}{
 \itemize{
 \item \strong{Select type of analysis:} Choose between "Ploidy" or "Genome size" analysis.
-\item \strong{Select number of standards:} A minimum of two standards is required.
+\item \strong{Select number of standards:} A minimum of two different standards is required, but more are recommended.
 \item \strong{Select standard samples and values:} This is the ploidy or genome size of your standards.
 }
 }
