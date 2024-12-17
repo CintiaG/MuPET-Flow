@@ -4,7 +4,7 @@ Created: January 30, 2023
 
 Updated: December 17, 2024
 
-Authors: Gómez-Muñoz, C.* and Fischer G.
+Authors: Gómez-Muñoz, C.* and Fischer, G.
 
 *cintia.gomez_munoz@sorbonne-universite.fr
 
