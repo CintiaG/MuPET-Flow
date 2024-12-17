@@ -49,6 +49,7 @@
 #' } else {
 #'   message("This is a Shiny app wrapper. Run interactively to use.")
 #' }
+#' @export
 runMuPETFlow <- function(){
   appDir <- system.file("shiny", "app", package = "MuPETFlow")
   if(appDir == ""){
