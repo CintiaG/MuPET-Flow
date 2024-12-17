@@ -88,13 +88,13 @@ The following R libraries are required to run MuPET-Flow. These are installed au
 * [shiny](https://shiny.posit.co/r/getstarted/shiny-basics/lesson1/index.html)
 * [shinythemes](https://rstudio.github.io/shinythemes/)
 * [flowCore](https://bioconductor.org/packages/release/bioc/html/flowCore.html)
-* [zoo](https://cran.r-project.org/web/packages/zoo/index.html)
+* [zoo](https://CRAN.R-project.org/package=zoo)
 * [ggplot2](https://ggplot2.tidyverse.org/)
 * [DT](https://rstudio.github.io/DT/)
 * [tidyverse](https://www.tidyverse.org/packages/)
-* [ggrepel](https://cran.r-project.org/web/packages/ggrepel/readme/README.html)
-* [gridExtra](https://cran.r-project.org/web/packages/gridExtra/index.html)
-* [markdown](https://cran.r-project.org/web/packages/markdown/index.html)
+* [ggrepel](https://CRAN.R-project.org/package=ggrepel)
+* [gridExtra](https://CRAN.R-project.org/package=gridExtra)
+* [markdown](https://CRAN.R-project.org/package=markdown)
 
 On Linux platforms, you may encounter errors related to missing system libraries. To resolve this, carefully read the error messages, identify the missing libraries, and install them using your system's package manager (e.g., `apt` for Debian/Ubuntu or `yum` for CentOS/RedHat).
 
