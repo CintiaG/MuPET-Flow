@@ -19,7 +19,7 @@
 
 #' ## Regression
 #' * **Select type of analysis:** Choose between "Ploidy" or "Genome size" analysis.
-#' * **Select number of standards:** A minimum of two standards is required.
+#' * **Select number of standards:** A minimum of two different standards is required, but more are recommended.
 #' * **Select standard samples and values:** This is the ploidy or genome size of your standards.
 
 #' ## Summary
