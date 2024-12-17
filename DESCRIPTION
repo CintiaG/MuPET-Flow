@@ -24,3 +24,7 @@ Imports:
     shinythemes,
     tidyr,
     zoo
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
