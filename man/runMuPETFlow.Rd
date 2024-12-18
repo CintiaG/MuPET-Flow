@@ -8,7 +8,7 @@ runMuPETFlow()
 }
 \description{
 This function launches the Shiny app included in MuPET-Flow.
-The first time the tool launches, it will try to install additional \strong{Bioconductor} dependencies that are not managed via \code{install.packages()}. This process might take a few minutes.
+The first time the tool launches, it will try to install additional \strong{Bioconductor} dependencies that are not managed via \code{install.packages()}, and download example files. This process requires internet connection and might take a few minutes.
 Once the application is launched, you can either:
 \enumerate{
 \item Load your experimental data.
