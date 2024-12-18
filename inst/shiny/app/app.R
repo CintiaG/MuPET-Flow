@@ -16,6 +16,31 @@ if (!requireNamespace("flowCore", quietly = TRUE)) {
   BiocManager::install("flowCore", update = FALSE)
 }
 
+# Define example data directory
+ExDir <- "../../extdata/"
+
+# Download example data
+download_example_data <- function(dest_dir = ExDir) {
+  # URL to the example files
+  base_url <- "https://github.com/CintiaG/MuPET-Flow/raw/refs/heads/master/example_data/"
+
+  file_list <- c("AVQ_rep2.fcs", "BY4742_1n_rep2.fcs", "BY4743_2n_rep2.fcs", "CRE_rep2.fcs", "YPS128_3n_rep2.fcs", "YPS128_4n_rep2.fcs")
+
+  # Create the destination directory if it doesn't exist
+  if (!dir.exists(dest_dir)) {
+    print("exdata directory does not exist and will be created")
+    dir.create(dest_dir, recursive = TRUE)
+
+    for (file in file_list){
+      file_url <- file.path(base_url, file)
+      dest_file <- file.path(dest_dir, file)
+      download.file(file_url, dest_file, mode = "wb")
+    }
+  }
+}
+
+download_example_data()
+
 # Load R packages
 library(shiny)
 library(shinythemes)
@@ -28,9 +53,6 @@ library(gridExtra)
 library(markdown)
 library(tidyr)
 library(dplyr)
-
-# Define example data directory
-ExDir <- "../../extdata/"
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("united"),
