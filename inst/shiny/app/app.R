@@ -24,7 +24,7 @@ download_example_data <- function(dest_dir = ExDir) {
   # URL to the example files
   base_url <- "https://github.com/CintiaG/MuPET-Flow/raw/refs/heads/master/example_data/"
 
-  file_list <- c("AVQ_rep2.fcs", "BY4742_1n_rep2.fcs", "BY4743_2n_rep2.fcs", "CRE_rep2.fcs", "YPS128_3n_rep2.fcs", "YPS128_4n_rep2.fcs")
+  file_list <- c("AVQ.fcs", "BY4742_1n.fcs", "BY4743_2n.fcs", "CRE.fcs", "YPS128_3n.fcs", "YPS128_4n.fcs")
 
   # Create the destination directory if it doesn't exist
   if (!dir.exists(dest_dir)) {
