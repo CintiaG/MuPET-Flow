@@ -29,7 +29,7 @@ Once **MuPET-Flow** is installed, you can run the application using the followin
 ```r
 runMuPETFlow()
 ```
-Note: The first time you launch the tool, it will attempt to install additional **Bioconductor** dependencies that are not managed via `install.packages()`, and download example files. This process requires internet connection and might take a few minutes.
+Note: The first time you launch the tool, it will attempt to install additional **Bioconductor** dependencies that are not managed via `install.packages()`, and download the example files. This process requires internet connection and might take a few minutes.
 
 ## Description
 

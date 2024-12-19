@@ -1,7 +1,7 @@
 #' Run the MuPET-Flow app
 #'
 #' This function launches the Shiny app included in MuPET-Flow.
-#' The first time the tool launches, it will try to install additional **Bioconductor** dependencies that are not managed via `install.packages()`, and download example files. This process requires internet connection and might take a few minutes.
+#' The first time the tool launches, it will try to install additional **Bioconductor** dependencies that are not managed via `install.packages()`, and download the example files. This process requires internet connection and might take a few minutes.
 #' Once the application is launched, you can either:
 #' 1. Load your experimental data.
 #' 2. Run an in-app example by clicking the 'Example' button.
