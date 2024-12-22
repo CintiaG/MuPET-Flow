@@ -5,16 +5,16 @@
 ####################################
 
 # Handel Bioconductor Dependencies Programmatically
-if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
+###if (!require("BiocManager", quietly = TRUE))
+###  install.packages("BiocManager")
 
-if (!requireNamespace("flowCore", quietly = TRUE)) {
-  BiocManager::install("cytolib", update = FALSE)
-}
+###if (!requireNamespace("flowCore", quietly = TRUE)) {
+###  BiocManager::install("cytolib", update = FALSE)
+###}
 
-if (!requireNamespace("flowCore", quietly = TRUE)) {
-  BiocManager::install("flowCore", update = FALSE)
-}
+###if (!requireNamespace("flowCore", quietly = TRUE)) {
+###  BiocManager::install("flowCore", update = FALSE)
+###}
 
 # Define example data directory
 ExDir <- "../../extdata/"
