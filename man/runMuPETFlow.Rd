@@ -2,20 +2,21 @@
 % Please edit documentation in R/runMuPETFlow.R
 \name{runMuPETFlow}
 \alias{runMuPETFlow}
-\title{Run the MuPET-Flow app}
+\title{Run the MuPETFlow app}
 \usage{
 runMuPETFlow()
 }
 \description{
-This function launches the Shiny app included in MuPET-Flow.
-The first time the tool launches, it will try to install additional \strong{Bioconductor} dependencies that are not managed via \code{install.packages()}, and download the example files. This process requires internet connection and might take a few minutes.
+This function launches the Shiny app included in MuPETFlow.
 Once the application is launched, you can either:
 \enumerate{
 \item Load your experimental data.
 \item Run an in-app example by clicking the 'Example' button.
 }\if{html}{\out{
 <br>
-<br>For the first case, selecting the channel where the data was acquired is mandatory. For the second case, the example channel `FL4-A` is automatically detected for demonstration purposes.
+<br>Notes:
+For the first case, selecting the channel where the data was acquired is mandatory.
+If you choose the second, the tool will download the example files in a temporary file. This process requires internet connection and might take a few minutes. Then, the example channel `FL4-A` is automatically detected for demonstration purposes.
 }}
 }
 \details{

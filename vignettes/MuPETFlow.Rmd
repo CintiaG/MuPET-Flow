@@ -62,9 +62,10 @@ Once the application is launched, you can either:
 1. Load your experimental data.
 2. Run an in-app example by clicking the 'Example' button.
 
-Note: If you choose the second, the tool will download the example files in a temporary file. This process requires internet connection and might take a few minutes.
+Notes:
 
-For the first case, selecting the channel where the data was acquired is mandatory. For the second case, the example channel `FL4-A` is automatically detected for demonstration purposes.
+* For the first case, selecting the channel where the data was acquired is mandatory.
+* If you choose the second, the tool will download the example files in a temporary file. This process requires internet connection and might take a few minutes. Then, the example channel `FL4-A` is automatically detected for demonstration purposes.
 
 After launching the app, you can follow the app flow, which is divided into three tabs: _**Peaks**_, _**Regression**_ and _**Summary**_.  Below is a general description of the options available in each tab:
 

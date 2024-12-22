@@ -1,15 +1,16 @@
 #' Run the MuPETFlow app
 #'
 #' This function launches the Shiny app included in MuPETFlow.
-#' The first time the tool launches, it will try to install additional **Bioconductor** dependencies that are not managed via `install.packages()`, and download the example files. This process requires internet connection and might take a few minutes.
 #' Once the application is launched, you can either:
 #' 1. Load your experimental data.
 #' 2. Run an in-app example by clicking the 'Example' button.
 #' <br>
-#' <br>For the first case, selecting the channel where the data was acquired is mandatory. For the second case, the example channel `FL4-A` is automatically detected for demonstration purposes.
+#' <br>Notes:
+#' For the first case, selecting the channel where the data was acquired is mandatory.
+#' If you choose the second, the tool will download the example files in a temporary file. This process requires internet connection and might take a few minutes. Then, the example channel `FL4-A` is automatically detected for demonstration purposes.
 #'
 #' After launching the app, you can follow the app flow, which is divided into three tabs: _**Peaks**_, _**Regression**_ and _**Summary**_.  Below is a general description of the options available in each tab:
-
+#'
 #' ## Peaks
 #' * **Select a sample (optional):** Allows visual exploration of individual samples if desired.
 #' * **Adjust smoothing (optional):** Adjusts the histogram curve for noisy samples.
