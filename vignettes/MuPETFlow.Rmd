@@ -16,20 +16,44 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-**MuPET-Flow** (Multiple Ploidy Estimation Tool for all Species Compatible with Flow Cytometry) is a graphical user interface (GUI) tool designed to estimate ploidy from DNA cells stained with fluorescent dyes and analyzed via flow cytometry. It automates the processes of file uploading and configuration, peak fluorescence intensity detection, multiple histogram visualizations, peak error curation, ploidy and genome size calculations, and result exportation.
+**MuPETFlow** (Multiple Ploidy Estimation Tool for all Species Compatible with Flow Cytometry) is a graphical user interface (GUI) tool designed to estimate ploidy from DNA cells stained with fluorescent dyes and analyzed via flow cytometry. It automates the processes of file uploading and configuration, peak fluorescence intensity detection, multiple histogram visualizations, peak error curation, ploidy and genome size calculations, and result exportation.
 
-```{r setup}
+## How to install MuPETFlow
+
+MuPETFlow can be installed from **The Comprehensive R Archive Network (CRAN)**:
+
+```r
+install.packages("MuPETFlow")
+```
+
+Alternatively, to install the latest development version directly from **GitHub**, use:
+
+```r
+remotes::install_github("CintiaG/MuPET-Flow")
+```
+
+This package also depends on the **Bioconductor** package `flowCore`, which is not managed via `install.packages()`. If not already installed, install it manually by running:
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+BiocManager::install("flowCore")
+```
+
+## How to run MuPETFlow
+
+Load the `MuPETFlow` library.
+
+```r
 library(MuPETFlow)
 ```
 
-## How to run MuPET-Flow
-
-Once **MuPET-Flow** is installed, you can run the application using the following function:
+Once **MuPETFlow** is installed, you can run the application using the following function:
 
 ```r
 runMuPETFlow()
 ```
-Note: The first time you launch the tool, it will attempt to install additional **Bioconductor** dependencies that are not managed via `install.packages()`, and download the example files. This process requires internet connection and might take a few minutes.
 
 ## Description
 
@@ -37,6 +61,8 @@ Once the application is launched, you can either:
 
 1. Load your experimental data.
 2. Run an in-app example by clicking the 'Example' button.
+
+Note: If you choose the second, the tool will download the example files in a temporary file. This process requires internet connection and might take a few minutes.
 
 For the first case, selecting the channel where the data was acquired is mandatory. For the second case, the example channel `FL4-A` is automatically detected for demonstration purposes.
 
@@ -60,3 +86,6 @@ After launching the app, you can follow the app flow, which is divided into thre
 * **Save table:** Exports the parameters used and the estimated ploidy or genome size as a CSV file.
 
 If any errors are detected in the analyzed samples, you can go back to the Peaks tab to review the parameters. Note that the regression must also be re-done after parameter adjustments.
+
+## References
+Gómez-Muñoz, C., & Fischer, G. (2024). MuPET-Flow: Multiple Ploidy Estimation Tool from Flow cytometry data (p. 2024.01.24.577056). bioRxiv. https://doi.org/10.1101/2024.01.24.577056
