@@ -4,17 +4,11 @@
 # flow cytometer histograms        #
 ####################################
 
-# Handel Bioconductor Dependencies Programmatically
-###if (!require("BiocManager", quietly = TRUE))
-###  install.packages("BiocManager")
-
-###if (!requireNamespace("flowCore", quietly = TRUE)) {
-###  BiocManager::install("cytolib", update = FALSE)
-###}
-
-###if (!requireNamespace("flowCore", quietly = TRUE)) {
-###  BiocManager::install("flowCore", update = FALSE)
-###}
+# Warn about Bioconductor dependencies
+if (!requireNamespace("flowCore", quietly = TRUE)) {
+  stop("The 'flowCore' package is required for this app to work. Please install it manually using:\n",
+       "BiocManager::install('flowCore')")
+}
 
 # Define example data directory
 ExDir <- "../../extdata/"
