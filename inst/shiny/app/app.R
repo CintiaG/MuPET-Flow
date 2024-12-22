@@ -10,30 +10,19 @@ if (!requireNamespace("flowCore", quietly = TRUE)) {
        "BiocManager::install('flowCore')")
 }
 
-# Define example data directory
-ExDir <- "../../extdata/"
-
-# Download example data
-download_example_data <- function(dest_dir = ExDir) {
+# Download example data function
+download_example_data <- function(dest_dir) {
   # URL to the example files
   base_url <- "https://github.com/CintiaG/MuPET-Flow/raw/refs/heads/master/example_data/"
 
   file_list <- c("AVQ.fcs", "BY4742_1n.fcs", "BY4743_2n.fcs", "CRE.fcs", "YPS128_3n.fcs", "YPS128_4n.fcs")
 
-  # Create the destination directory if it doesn't exist
-  if (!dir.exists(dest_dir)) {
-    print("exdata directory does not exist and will be created")
-    dir.create(dest_dir, recursive = TRUE)
-
-    for (file in file_list){
-      file_url <- file.path(base_url, file)
-      dest_file <- file.path(dest_dir, file)
-      download.file(file_url, dest_file, mode = "wb")
-    }
+  for (file in file_list){
+    file_url <- file.path(base_url, file)
+    dest_file <- file.path(dest_dir, file)
+    download.file(file_url, dest_file, mode = "wb")
   }
 }
-
-download_example_data()
 
 # Load R packages
 library(shiny)
@@ -87,6 +76,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                                       # Histogram plot
                                       h3("Histogram"),
                                       verbatimTextOutput("Warn1"),
+                                      verbatimTextOutput("Warn6"),
                                       plotOutput("HisPlot"),
                                       #  Table results 1
                                       h3("Estimated peaks and used parameters"),
@@ -528,8 +518,10 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$LoadEx, {
-    # Set trigger to "example"
-    trigger("example")
+    # Set trigger to "example", only if internet collection available
+    if(curl::has_internet()){
+      trigger("example")
+    }
   })
 
   InitDf <- eventReactive(trigger(), {
@@ -538,6 +530,11 @@ server <- function(input, output, session) {
       file_list <- input$InFiles$datapath
       file_name <- input$InFiles$name
     } else if (trigger() == "example") {
+      # Define example data directory
+      ExDir <- tempdir()
+      # Download example data function
+      download_example_data(ExDir)
+      # List downloaded files
       example_files <- list.files(ExDir, full.names = TRUE, pattern = "\\.fcs$")
       new_files <- list(
         datapath = example_files,
@@ -593,12 +590,22 @@ server <- function(input, output, session) {
   # Warning to incorrect execution of regression
   WarnHis1 <- reactive({
     validate(
-      need(trigger() != "", "Please upload files to obtain histograms"),
+      need(trigger() != "", "Please upload files to obtain histograms."),
+    )
+  })
+
+  WarnHis2 <- eventReactive(input$LoadEx, {
+    validate(
+      need(curl::has_internet(), "Running the example files requires internet connection."),
     )
   })
 
   output$Warn1 <- renderPrint({
     WarnHis1()
+  })
+
+  output$Warn6 <- renderPrint({
+    WarnHis2()
   })
   # Plot data
   output$HisPlot <- renderPlot({
@@ -691,8 +698,8 @@ server <- function(input, output, session) {
   # Warning to incorrect execution of regression
   WarnReg2 <- reactive({
     validate(
-      need(trigger() != "", "Please upload files to perform regression"),
-      need(input$InCtrlSample2 != "", "Please provide at least two standards to perform regression"),
+      need(trigger() != "", "Please upload files to perform regression."),
+      need(input$InCtrlSample2 != "", "Please provide at least two standards to perform regression."),
     )
   })
 
@@ -702,8 +709,8 @@ server <- function(input, output, session) {
 
   WarnReg3 <- eventReactive(input$InReg, {
     validate(
-      need(input$InCtrlSample2 != "", "Please provide at least two standards to perform regression"),
-      need(length(input$InPeaksPlot) != 0, "No peaks detected"),
+      need(input$InCtrlSample2 != "", "Please provide at least two standards to perform regression."),
+      need(length(input$InPeaksPlot) != 0, "No peaks detected."),
     )
   })
 
@@ -815,7 +822,7 @@ server <- function(input, output, session) {
   # Warning to incorrect execution of summary
   WarnSum4 <- reactive({
     validate(
-      need(trigger() != "", "Please perform regression first"),
+      need(trigger() != "", "Please perform regression first."),
     )
   })
 
@@ -825,7 +832,7 @@ server <- function(input, output, session) {
 
   WarnSum5 <- eventReactive(input$InSum, {
     validate(
-      need(Df$Res != "", "No regression found")
+      need(Df$Res != "", "No regression found.")
     )
   })
 
