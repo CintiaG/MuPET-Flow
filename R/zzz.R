@@ -1,9 +1,11 @@
-.onLoad <- function(libname, pkgname) {
+.onAttach <- function(libname, pkgname) {
   if (!requireNamespace("flowCore", quietly = TRUE)) {
     packageStartupMessage(
-      "The 'flowCore' package is required for MuPETFlow to work. ",
+      "Warning: The 'flowCore' package is required but not installed.\n",
       "Please install it manually using:\n",
-      "BiocManager::install('flowCore')"
+      "BiocManager::install('flowCore')\n"
     )
+  } else {
+    packageStartupMessage("Thank you for using MuPETFlow!")
   }
 }

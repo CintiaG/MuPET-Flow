@@ -2,6 +2,7 @@
 
 export(runMuPETFlow)
 import(BiocManager)
+import(flowCore)
 import(ggplot2)
 import(ggrepel)
 import(gridExtra)

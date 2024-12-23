@@ -12,12 +12,11 @@ Encoding: UTF-8
 Date/Publication: 2024-12-16
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-biocViews:
-    flowCore
 Imports: 
     BiocManager,
     dplyr,
     DT,
+    flowCore,
     ggplot2,
     ggrepel,
     gridExtra,

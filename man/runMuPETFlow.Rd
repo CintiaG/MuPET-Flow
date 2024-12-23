@@ -6,6 +6,9 @@
 \usage{
 runMuPETFlow()
 }
+\value{
+No return value, called for side effects.
+}
 \description{
 This function launches the Shiny app included in MuPETFlow.
 Once the application is launched, you can either:

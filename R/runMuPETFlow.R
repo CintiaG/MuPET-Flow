@@ -31,6 +31,7 @@
 #' <br>
 #' If any errors are detected in the analyzed samples, you can go back to the Peaks tab to review the parameters. Note that the regression must also be re-done after parameter adjustments.
 #'
+#' @return No return value, called for side effects.
 #' @export
 #' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #' @import shinythemes
@@ -42,6 +43,7 @@
 #' @import markdown
 #' @import BiocManager
 #' @import tidyr
+#' @import flowCore
 #' @importFrom dplyr mutate
 #' @examples
 #' if (interactive()) {
