@@ -12,9 +12,9 @@ Authors: Gómez-Muñoz, C.* and Fischer, G.
 
 ## Introduction
 
-This is the source repository for `MuPET-Flow`.
+This is the source repository for `MuPETFlow`.
 
-**MuPET-Flow** is a graphical user interface (GUI) tool designed to estimate ploidy from DNA cells stained with fluorescent dyes and analyzed via flow cytometry. It automates the processes of file uploading and configuration, peak fluorescence intensity detection, multiple histogram visualizations, peak error curation, ploidy and genome size calculations, and result exportation.
+**MuPETFlow** is a graphical user interface (GUI) tool designed to estimate ploidy from DNA cells stained with fluorescent dyes and analyzed via flow cytometry. It automates the processes of file uploading and configuration, peak fluorescence intensity detection, multiple histogram visualizations, peak error curation, ploidy and genome size calculations, and result exportation.
 
 ![](man/figures/MuPET-Flow_Screenshot.png)
 
@@ -22,12 +22,12 @@ If you encounter any bugs or issues, please feel free to report them.
 
 ## Installation and Prerequisites
 
-To run MuPET-Flow, you need **R** and optionally **RStudio**. Below are links to their download pages and installation instructions:
+To run MuPETFlow, you need **R** and optionally **RStudio**. Below are links to their download pages and installation instructions:
 
 * [R](https://cran.r-project.org/)
 * [RStudio](https://posit.co/download/rstudio-desktop/)
 
-MuPET-Flow can be installed from **The Comprehensive R Archive Network (CRAN)**:
+MuPETFlow can be installed from **The Comprehensive R Archive Network (CRAN)**:
 
 ```r
 install.packages("MuPETFlow")
@@ -50,7 +50,7 @@ BiocManager::install("flowCore")
 
 See [Dependencies](#Dependencies) below if you encounter any issues.
 
-## How to run MuPET-Flow
+## How to run MuPETFlow
 
 Load the `MuPETFlow` library.
 
@@ -58,7 +58,7 @@ Load the `MuPETFlow` library.
 library(MuPETFlow)
 ```
 
-Once **MuPET-Flow** is installed, you can run the application using the following function:
+Once **MuPETFlow** is installed, you can run the application using the following function:
 
 ```r
 runMuPETFlow()
@@ -102,7 +102,7 @@ If any errors are detected in the analyzed samples, you can go back to the Peaks
 
 ## Dependencies
 
-The following R libraries are required to run MuPET-Flow. These are installed automatically during the setup. If automatic installation fails, you can manually install them:
+The following R libraries are required to run MuPETFlow. These are installed automatically during the setup. If automatic installation fails, you can manually install them:
 
 * [shiny](https://shiny.posit.co/r/getstarted/shiny-basics/lesson1/index.html)
 * [shinythemes](https://rstudio.github.io/shinythemes/)
