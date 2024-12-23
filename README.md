@@ -76,8 +76,6 @@ Notes:
 
 After launching the app, you can follow the app flow, which is divided into three tabs: _**Peaks**_, _**Regression**_ and _**Summary**_.  Below is a general description of the options available in each tab:
 
-![](man/figures/MuPET-Flow_Workflow.png)
-
 ### Peaks
 
 * **Select a sample (optional):** Allows visual exploration of individual samples if desired.
@@ -99,6 +97,8 @@ After launching the app, you can follow the app flow, which is divided into thre
 * **Save table:** Exports the parameters used and the estimated ploidy or genome size as a CSV file.
 
 If any errors are detected in the analyzed samples, you can go back to the Peaks tab to review the parameters. Note that the regression must also be re-done after parameter adjustments.
+
+![](man/figures/MuPET-Flow_Workflow.png)
 
 ## Dependencies
 
