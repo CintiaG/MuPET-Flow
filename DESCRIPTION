@@ -26,5 +26,6 @@ Imports:
     zoo
 Suggests: 
     knitr,
+    flowCore,
     rmarkdown
 VignetteBuilder: knitr
