@@ -16,7 +16,6 @@ Imports:
     BiocManager,
     dplyr,
     DT,
-    flowCore,
     ggplot2,
     ggrepel,
     gridExtra,

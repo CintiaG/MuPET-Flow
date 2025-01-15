@@ -43,7 +43,6 @@
 #' @import markdown
 #' @import BiocManager
 #' @import tidyr
-#' @import flowCore
 #' @importFrom dplyr mutate
 #' @examples
 #' if (interactive()) {
