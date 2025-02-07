@@ -13,7 +13,7 @@ if (!requireNamespace("flowCore", quietly = TRUE)) {
 # Download example data function
 download_example_data <- function(dest_dir) {
   # URL to the example files
-  base_url <- "https://github.com/CintiaG/MuPET-Flow/raw/refs/heads/master/example_data/"
+  base_url <- "https://github.com/CintiaG/MuPETFlow/raw/refs/heads/master/example_data/"
 
   file_list <- c("AVQ.fcs", "BY4742_1n.fcs", "BY4743_2n.fcs", "CRE.fcs", "YPS128_3n.fcs", "YPS128_4n.fcs")
 
