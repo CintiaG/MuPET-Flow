@@ -127,4 +127,4 @@ On Linux platforms, you may encounter errors related to missing system libraries
 
 ## References
 
-Gómez-Muñoz, C., & Fischer, G. (2024). MuPET-Flow: Multiple Ploidy Estimation Tool from Flow cytometry data (p. 2024.01.24.577056). bioRxiv. https://doi.org/10.1101/2024.01.24.577056
+Gómez-Muñoz, C., & Fischer, G. (2024). MuPETFlow: Multiple Ploidy Estimation Tool from Flow cytometry data (p. 2024.01.24.577056). bioRxiv. https://doi.org/10.1101/2024.01.24.577056
